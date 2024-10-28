@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
 
   <title>ギルドメンバーポジション表</title>
@@ -127,22 +128,77 @@
       localStorage.setItem("guildData", JSON.stringify(savedData));
       createTable();
     }
-    function populateMemberOptions() {
+
+//evaluations
+function populateMemberOptions() {
   const savedData = JSON.parse(localStorage.getItem("guildData")) || initialData;
-  const members = savedData.map(member => member.name);
-  
-  for (let i = 1; i <= 5; i++) {
-    for (const time of ["", "_night1", "_night2"]) {
-      const select = document.getElementById(`member${i}${time}`);
-      members.forEach(member => {
-        const option = document.createElement("option");
-        option.value = member;
-        option.textContent = member;
-        select.appendChild(option);
-      });
+
+  // ドロップダウンのメンバーを格納する配列
+  const dayMembers = [];
+  const night1Members = [];
+  const night2Members = [];
+
+  // メンバーの評価に基づいてフィルタリング
+  savedData.forEach(member => {
+    if (member.position === "前" || member.position === "前後") {
+      // 昼のドロップダウンにはすべての評価が〇のメンバーを表示
+      if (member.evaluations[0] !== "×") {
+        dayMembers.push(member.name);
+      }
+      // 夜1のドロップダウンには2番目の評価が〇のメンバーを表示
+      if (member.evaluations[1] !== "×") {
+        night1Members.push(member.name);
+      }
+      // 夜2のドロップダウンには3番目の評価が〇のメンバーを表示
+      if (member.evaluations[2] !== "×") {
+        night2Members.push(member.name);
+      }
     }
+  });
+
+  // ドロップダウンにメンバーを追加
+  for (let i = 1; i <= 5; i++) {
+    // 昼のドロップダウン
+    const daySelect = document.getElementById(`member${i}`);
+    daySelect.innerHTML = ""; // 既存のオプションをクリア
+    dayMembers.forEach(member => {
+      const option = document.createElement("option");
+      option.value = member;
+      option.textContent = member;
+      daySelect.appendChild(option);
+    });
+
+    // 夜1のドロップダウン
+    const night1Select = document.getElementById(`member${i}_night1`);
+    night1Select.innerHTML = ""; // 既存のオプションをクリア
+    night1Members.forEach(member => {
+      const option = document.createElement("option");
+      option.value = member;
+      option.textContent = member;
+      night1Select.appendChild(option);
+    });
+
+    // 夜2のドロップダウン
+    const night2Select = document.getElementById(`member${i}_night2`);
+    night2Select.innerHTML = ""; // 既存のオプションをクリア
+    night2Members.forEach(member => {
+      const option = document.createElement("option");
+      option.value = member;
+      option.textContent = member;
+      night2Select.appendChild(option);
+    });
   }
 }
+
+
+
+
+
+
+
+
+
+
 function saveTableAsImage() {
   const table = document.getElementById("scheduleTable");
   html2canvas(table, {
@@ -305,10 +361,11 @@ function copySchedule() {
 
   
   <h2>出力結果</h2>
-<pre id="outputString"></pre>
-
 <button id="outputButton" onclick="outputSchedule()">出力</button>
-<div id="outputString" style="margin-top: 20px; white-space: pre-wrap;"></div>
+<div id="outputString" style="margin-top: 20px;  white-space: pre-wrap; text-align: center;"></div>
 
+<br>
+<br> 
+<br>
 </body>
 </html>
