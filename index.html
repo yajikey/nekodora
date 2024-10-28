@@ -128,7 +128,12 @@
       localStorage.setItem("guildData", JSON.stringify(savedData));
       createTable();
     }
+function initializeTable() {
+  const table = document.getElementById("scheduleTable");
+  table.addEventListener("input", populateMemberOptions); // テーブル更新時にドロップダウンを更新
 
+  populateMemberOptions(); // 初期ロード時にドロップダウンを表示
+}
 //evaluations
 function populateMemberOptions() {
   const savedData = JSON.parse(localStorage.getItem("guildData")) || initialData;
@@ -199,17 +204,6 @@ function populateMemberOptions() {
 
 
 
-function saveTableAsImage() {
-  const table = document.getElementById("scheduleTable");
-  html2canvas(table, {
-    onrendered: function(canvas) {
-      const link = document.createElement("a");
-      link.href = canvas.toDataURL("image/png"); // PNGとしてデータURLを取得
-      link.download = "schedule.png"; // ダウンロード名
-      link.click(); // リンクをクリックしてダウンロードを実行
-    }
-  });
-}
 
 function outputSchedule() {
   const scheduleTable = document.getElementById("scheduleTable");
@@ -234,7 +228,59 @@ function outputSchedule() {
   outputDiv.textContent = output; // 表示用のdivに文字列を設定
 }
 
+function sendSchedule(){
+  const scheduleTable = document.getElementById("scheduleTable");
+  const selectedDate = document.getElementById("scheduleDate").value; // 選択された日付
+  let output = "";
+  output += `日付: ${selectedDate}\n\n`;
+  // 1行目（タイトル行）をスキップして、2行目から処理
+  for (let i = 1; i < scheduleTable.rows.length; i++) {
+    const row = scheduleTable.rows[i];
+    let rowData = [];
+    
+    // 各セルの内容を取得
+    for (let j = 0; j < row.cells.length; j++) {
+      rowData.push(row.cells[j].querySelector("select") ? row.cells[j].querySelector("select").value : row.cells[j].textContent.trim());
+    }
+    
+    // 行データをタブ区切りで結合し、改行を追加
+    output += rowData.join("\t") + "\n";
+  }
+output+="\n";
+  // Discord Webhook URL
+  const webhookUrl = "https://discord.com/api/webhooks/1300400838816301148/5kLLvk-PH7tQPUgD-qzXKhQ9cKPJkP6qymwgUE1dl63GC6KioLBkJKeR9prEU_6AH9xT";
 
+  // Webhookにデータを送信
+  fetch(webhookUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      content: output // メッセージ内容
+    })
+  })
+  .then(response => {
+    if (response.ok) {
+      console.log("Data sent to Discord successfully!");
+    } else {
+      console.error("Error sending data to Discord:", response.statusText);
+    }
+  })
+  .catch(error => {
+    console.error("Error:", error);
+  });
+
+  
+}
+ // ページ読み込み時に日付の初期値を今日の日付に設定
+ document.addEventListener("DOMContentLoaded", () => {
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = String(today.getMonth() + 1).padStart(2, '0'); // 月は0始まりなので+1
+      const day = String(today.getDate()).padStart(2, '0');
+      document.getElementById("scheduleDate").value = `${year}-${month}-${day}`;
+    });
 function resetSchedule() {
   for (let i = 1; i <= 5; i++) {
     for (const time of ["", "_night1", "_night2"]) {
@@ -244,27 +290,6 @@ function resetSchedule() {
   }
 }
 
-function copySchedule() {
-  const table = document.getElementById("scheduleTable");
-  const range = document.createRange();
-  range.selectNodeContents(table); // テーブル全体を選択
-  window.getSelection().removeAllRanges(); // 以前の選択を解除
-  window.getSelection().addRange(range); // 表を選択
-
-  // コピーを実行
-  try {
-    const successful = document.execCommand("copy");
-    if (successful) {
-      alert("参加予定リストがコピーされました。");
-    } else {
-      alert("コピーに失敗しました。");
-    }
-  } catch (err) {
-    console.error("コピー中にエラーが発生しました:", err);
-  }
-
-  window.getSelection().removeAllRanges(); // 選択を解除
-}
 
 
     window.onload = () => {
@@ -357,13 +382,20 @@ function copySchedule() {
     </tbody>
   </table>
   <button onclick="resetSchedule()">参加予定リセット</button>
+  <br>
+  <label for="">日時を決定し送信ボタンを押すことでディスコードに送信できます</label>
+ <br>
+  <br>
+  <label for="scheduleDate">対戦日時:</label>
+  <input type="date" id="scheduleDate">
+  <button id="sendButton" onclick="sendSchedule()">送信</button>
   
+  
+  <h2>前衛メンバーをテキストとして出力する</h2>
 
-  
-  <h2>出力結果</h2>
+
 <button id="outputButton" onclick="outputSchedule()">出力</button>
 <div id="outputString" style="margin-top: 20px;  white-space: pre-wrap; text-align: center;"></div>
-
 <br>
 <br> 
 <br>
