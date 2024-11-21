@@ -276,7 +276,7 @@ daySelect.onblur = function() {
         if (option.value === selectedMember) {
             option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
         } else {
-            option.textContent = `${daySign[dayMembers.indexOf(option.value)]}：${option.value}`;  // 他のオプションにはdaySign[n]を表示
+            option.textContent = `${option.value}`;  // 他のオプションにはdaySign[n]を表示
         }
     });
     isClicked = false; // クリック状態をリセット
@@ -344,7 +344,7 @@ daySelect.onblur = function() {
         if (option.value === selectedMember) {
             option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
         } else {
-            option.textContent = `${night1Sign[night1Members.indexOf(option.value)]}：${option.value}`;  // 他のオプションにはdaySign[n]を表示
+            option.textContent = `${option.value}`;  // 他のオプションにはdaySign[n]を表示
         }
     });
     night1Clicked = false; // クリック状態をリセット
@@ -409,7 +409,7 @@ daySelect.onblur = function() {
         if (option.value === selectedMember) {
             option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
         } else {
-            option.textContent = `${night2Sign[night2Members.indexOf(option.value)]}：${option.value}`;  // 他のオプションにはdaySign[n]を表示
+            option.textContent = `${option.value}`;  // 他のオプションにはdaySign[n]を表示
         }
     });
     night2Clicked = false; // クリック状態をリセット
