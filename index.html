@@ -158,6 +158,7 @@
 
 
 //前衛メンバーを管理
+var ArrayToggle=false;
 let DayArray = new Array(5);
 let Night1Array = new Array(5);
 let Night2Array = new Array(5);
@@ -195,12 +196,19 @@ function populateMemberOptions() {
     }
   });
 
-
-  // 各ドロップダウンを設定
-  for (let i = 1; i <= 5; i++) {
-      DayArray[i]=dayMembers[i-1];
+  if(!ArrayToggle){
+for(let i=1;i<=5;i++){
+    DayArray[i]=dayMembers[i-1];
     Night1Array[i]=night1Members[i-1];
     Night2Array[i]=night2Members[i-1];
+}
+ArrayToggle=true;
+  }
+  
+  
+  // 各ドロップダウンを設定
+  for (let i = 1; i <= 5; i++) {
+    
     setupDropdown("day", i, dayMembers, daySign, dayPos, DayArray);
     setupDropdown("night1", i, night1Members, night1Sign, night1Pos, Night1Array);
     setupDropdown("night2", i, night2Members, night2Sign, night2Pos, Night2Array);
@@ -212,7 +220,7 @@ function setupDropdown(type, index, members, signs, positions, array) {
   const dropdown = document.getElementById(`member${index}${type !== "day" ? `_${type}` : ""}`);
   dropdown.innerHTML = ""; // 既存のオプションをクリア
 
-  console.log("とりあえず起動");
+  //console.log("とりあえず起動");
   for (let j = 0; j < members.length; j++) {
   const member = members[j];
   const option = document.createElement("option");
@@ -221,8 +229,17 @@ function setupDropdown(type, index, members, signs, positions, array) {
 
   if (member === array[index] &&Rem) {
     option.selected = true;
+
   }
-console.log("よばれた");
+ 
+  
+  
+  // optionにdisabledを適用
+if(Rem){
+    option.disabled = array.includes(option.value);
+  //  console.log(type,array);
+}
+//console.log("よばれた");
   if(situation){
     const result = PoD ? ` ${positions[j]}` : "";
     option.textContent = `${signs[j]}${result}：${option.value}`;
@@ -233,69 +250,47 @@ console.log("よばれた");
 
 }
 
+
   setupClickEvents(dropdown, index, type, members, signs, positions, array);
 }
 
 
-// クリックイベントのセットアップ
+
+
+
 // クリックイベントのセットアップ
 function setupClickEvents(dropdown, index, type, members, signs, positions, array) {
   let isClicked = false; // クリック状態を判定するフラグ
-  let lastSelectedValue = dropdown.value; // 最後に選択されていた値を保存
 
-  if(!situation){
-  // // ドロップダウンを開いた時の処理
-  // const handleDropdownOpen = () => {
-  //   const options = dropdown.querySelectorAll("option");
-  //   options.forEach((option, idx) => {
-  //     const result = PoD ? ` ${positions[idx]}` : "";
-  //     option.textContent = `${signs[idx]}${result}：${option.value}`;
-  //     option.disabled = array.includes(option.value) && Rem;
-  //   });
-  //   isClicked = true;
-  // };
+  dropdown.onchange = function () {
+  const options = dropdown.querySelectorAll("option");
+  const selectedValue = event.target.value;
+  //console.log(`選択された値: ${selectedValue}`);
+  //console.log(index, type,menubar);
+  if(type==="day"){
+    DayArray[index]=selectedValue;
+   // console.log(  DayArray,index,selectedValue)
+   }
+   if(type==="night1"){
+    Night1Array[index]=selectedValue;
+    console.log(  Night1Array[index],index,selectedValue)
+   }
+   if(type==="night2"){
+    Night2Array[index]=selectedValue;
+    console.log(  Night2Array[index],index,selectedValue)
+   }
 
-  // // ドロップダウンが閉じられた時の処理
-  // const handleDropdownClose = () => {
-  //   const selectedMember = dropdown.value;
-  //   const options = dropdown.querySelectorAll("option");
+   for (let i = 1; i <= 5; i++) {
+    
+    setupDropdown(type, i, members, signs, positions, array);
+  }
+  
+saveCurrentSelections();
 
-  //   if (selectedMember === lastSelectedValue) {
-  //     // 選択肢を変えずに閉じた場合の処理
-  //     console.log(`ドロップダウンが閉じられました（選択肢未変更: ${selectedMember}）`);
-  //   } else {
-  //     // 選択肢が変更された場合の処理
-  //     array[index] = selectedMember;
-  //     lastSelectedValue = selectedMember; // 最終選択値を更新
-  //     console.log(`ドロップダウンが閉じられました（選択肢変更: ${selectedMember}）`);
-  //   }
-
-  //   options.forEach(option => {
-  //     option.textContent = option.value === selectedMember
-  //       ? selectedMember
-  //       : `${signs[members.indexOf(option.value)]}：${option.value}`;
-  //   });
-  //   isClicked = false;
-  // };
-
-  // // タップやクリックイベントに応じた処理
-  // dropdown.addEventListener("touchstart", handleDropdownOpen);
-  // dropdown.addEventListener("click", () => {
-  //   if (!isClicked) {
-  //     handleDropdownOpen();
-  //   } else {
-  //     handleDropdownClose();
-  //   }
-  // });
-
-  // // フォーカスが外れた時の処理
-  // dropdown.addEventListener("blur", handleDropdownClose);
+};
 
 
 }
-
-}
-
 
 
 // 表示中の選択肢をlocalStorageに保存する関数
@@ -312,9 +307,10 @@ console.log("save");
     selections[`member${i}_day`] = daySelect.value;
     selections[`member${i}_night1`] = night1Select.value;
     selections[`member${i}_night2`] = night2Select.value;
+    if(Rem){
 DayArray[i]=daySelect.value;
-
-//console.log(DayArray[i]);
+    }
+console.log(DayArray[i]);
   
   }
 
@@ -718,10 +714,12 @@ option:disabled {
   <button onclick="resetData()">リセット</button>
   
   <button onclick="resetParticipationData()">参加予定リセット</button>
-  <h2>前衛予定リスト <button onclick="situationToggle()" class="UIButton">ステータス反映モード<div id="Sit">OFF</div></button>
+  <br>
+  <br>
+  <h3>前衛予定リスト <button onclick="situationToggle()" class="UIButton">ステータス反映モード<div id="Sit">OFF</div></button>
     <button onclick="positionDisplay()" class="UIButton">ポジション表示<div id="POD">OFF</div></button>
   <button onclick="remove()" class="UIButton">絞り込み機能<div id="Rem">OFF</div></button>
-  </h2> 
+  </h3> 
 
   <table border="1" id="scheduleTable">
     <thead>
@@ -765,7 +763,7 @@ option:disabled {
     </tbody>
   </table>
   <button onclick="resetSchedule()">メンバーリセット</button>
-  <br>
+  <br><br>
   <label for="">日時を決定し送信ボタンを押すことでディスコードに送信できます</label>
  <br>
   <br>
