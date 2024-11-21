@@ -243,6 +243,7 @@ function setupClickEvents(dropdown, index, type, members, signs, positions, arra
   let isClicked = false; // クリック状態を判定するフラグ
   let lastSelectedValue = dropdown.value; // 最後に選択されていた値を保存
 
+  if(!situation){
   // ドロップダウンを開いた時の処理
   const handleDropdownOpen = () => {
     const options = dropdown.querySelectorAll("option");
@@ -289,6 +290,8 @@ function setupClickEvents(dropdown, index, type, members, signs, positions, arra
 
   // フォーカスが外れた時の処理
   dropdown.addEventListener("blur", handleDropdownClose);
+}
+
 }
 
 
