@@ -230,8 +230,10 @@ function setupDropdown(type, index, members, signs, positions, array) {
 }
 
 // クリックイベントのセットアップ
+// クリックイベントのセットアップ
 function setupClickEvents(dropdown, index, type, members, signs, positions, array) {
   let isClicked = false; // クリック状態を判定するフラグ
+  let lastSelectedValue = dropdown.value; // 最後に選択されていた値を保存
 
   dropdown.onclick = function () {
     if (!isClicked) {
@@ -252,12 +254,24 @@ function setupClickEvents(dropdown, index, type, members, signs, positions, arra
           : `${signs[members.indexOf(option.value)]}：${option.value}`;
       });
       isClicked = false;
+      lastSelectedValue = selectedMember; // 最終選択値を更新
     }
   };
 
   dropdown.onblur = function () {
     const selectedMember = dropdown.value;
     const options = dropdown.querySelectorAll("option");
+
+    if (selectedMember === lastSelectedValue) {
+      // 選択肢を変えずに閉じた場合の処理
+      console.log(`ドロップダウンが閉じられました（選択肢未変更: ${selectedMember}）`);
+    } else {
+      // 選択肢が変更された場合の処理
+      array[index] = selectedMember;
+      lastSelectedValue = selectedMember; // 最終選択値を更新
+      console.log(`ドロップダウンが閉じられました（選択肢変更: ${selectedMember}）`);
+    }
+
     options.forEach(option => {
       option.textContent = option.value === selectedMember
         ? selectedMember
