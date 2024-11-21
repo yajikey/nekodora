@@ -93,6 +93,7 @@
         const dbInput1 = document.createElement("input");
         dbInput1.type = "text";
         dbInput1.value = savedData[i]?.drablere1 || "";
+        dbInput1.className = "input2"; 
         dbInput1.oninput = function() {
   console.log("Input changed"); // これでイベントが発火しているか確認
   saveData();
@@ -105,6 +106,7 @@
         const dbInput2 = document.createElement("input");
         dbInput2.type = "text";
         dbInput2.value = savedData[i]?.drablere2 || "";
+        dbInput2.className = "input2"; 
         dbInput2.oninput = function() {
   console.log("Input changed"); // これでイベントが発火しているか確認
   saveData();
@@ -161,264 +163,111 @@ let Night1Array = new Array(5);
 let Night2Array = new Array(5);
 function populateMemberOptions() {
   const savedData = JSON.parse(localStorage.getItem("guildData")) || initialData;
-
   console.log("起動");
-  // ドロップダウンのメンバーを格納する配列
   const dayMembers = [];
   const night1Members = [];
   const night2Members = [];
-
   const daySign = [];
   const night1Sign = [];
   const night2Sign = [];
-
   const dayPos = [];
   const night1Pos = [];
   const night2Pos = [];
 
-
   // メンバーの評価に基づいてフィルタリング
   savedData.forEach(member => {
     if (member.position === "前" || member.position === "前後") {
-      // 昼のドロップダウンにはすべての評価が〇のメンバーを表示
       if (member.evaluations[0] !== "×") {
         dayMembers.push(member.name);
         daySign.push(member.evaluations[0]);
-        dayPos.push("("+member.position+")");
+        dayPos.push(`(${member.position})`);
       }
-      // 夜1のドロップダウンには2番目の評価が〇のメンバーを表示
       if (member.evaluations[1] !== "×") {
         night1Members.push(member.name);
         night1Sign.push(member.evaluations[1]);
-        night1Pos.push("("+member.position+")");
+        night1Pos.push(`(${member.position})`);
       }
-      // 夜2のドロップダウンには3番目の評価が〇のメンバーを表示
       if (member.evaluations[2] !== "×") {
         night2Members.push(member.name);
         night2Sign.push(member.evaluations[2]);
-        night2Pos.push("("+member.position+")");
+        night2Pos.push(`(${member.position})`);
       }
-      
     }
   });
 
 
-  // ドロップダウンにメンバーを追加
+  // 各ドロップダウンを設定
   for (let i = 1; i <= 5; i++) {
-    const numberPrefix = `${i}:`;
-    DayArray[i]=dayMembers[i-1];
+      DayArray[i]=dayMembers[i-1];
     Night1Array[i]=night1Members[i-1];
     Night2Array[i]=night2Members[i-1];
-    
-   // console.log(DayArray[i-1]);
-    // 昼のドロップダウン
-    const daySelect = document.getElementById(`member${i}`);
-    daySelect.addEventListener("change", saveCurrentSelections);
-    daySelect.innerHTML = ""; // 既存のオプションをクリア
-    // ドロップダウン内にメンバーを追加
-    for (let j = 0; j < dayMembers.length; j++) {
- 
-      const option = document.createElement("option");
-      option.value = dayMembers[j];
-      option.textContent = dayMembers[j];
-      daySelect.appendChild(option);
-      if (dayMembers[j] === DayArray[i] && Rem) {
-            option.selected = true; // 初期値を選択
-            console.log("初期値設定: " + dayMembers[j]);
-        }
+    setupDropdown("day", i, dayMembers, daySign, dayPos, DayArray);
+    setupDropdown("night1", i, night1Members, night1Sign, night1Pos, Night1Array);
+    setupDropdown("night2", i, night2Members, night2Sign, night2Pos, Night2Array);
   }
+}
 
-    // 昼のドロップダウンで選択が変更されたときの処理
-    let isClicked = false; // クリック中かどうかを判定するフラグ
-    daySelect.onclick = function() {
-      if (!isClicked) {
-        
-        // クリック中の処理：全てのオプションにdaySign[index]を追加
-        const options = daySelect.querySelectorAll('option');
-        options.forEach((option, index) => {
-          var result="";
-          if(PoD){
-            result=" "+dayPos[index]
-          }
-          option.textContent = `${daySign[index]}${result}：${option.value}`;  // daySign[n]を使って表示
-          if(DayArray.includes(option.value)&&Rem){
-        //含まれている。
-        option.disabled=true;
-      }
-      else{
-        option.disabled=false;
-      }
-        });
-        isClicked = true; // クリック中にした
-      } else {
-        // クリック後の処理：選択されたメンバーだけを名前のみ表示
-        const selectedMember = daySelect.value;
-        DayArray[i]=daySelect.value;
-        console.log(i+"に"+daySelect.value+"が入った");
-        const options = daySelect.querySelectorAll('option');
-        options.forEach(option => {
-          if (option.value === selectedMember) {
-            option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
+// ドロップダウンのセットアップ
+function setupDropdown(type, index, members, signs, positions, array) {
+  const dropdown = document.getElementById(`member${index}${type !== "day" ? `_${type}` : ""}`);
+  dropdown.innerHTML = ""; // 既存のオプションをクリア
 
-          } else {
-            option.textContent = `${daySign[dayMembers.indexOf(option.value)]}：${option.value}`;  // 他のオプションにはdaySign[n]を表示
-          }
-        });
-        isClicked = false; // 再度クリック後の状態に戻す
-      }
-    };
+  console.log("とりあえず起動");
+  for (let j = 0; j < members.length; j++) {
+  const member = members[j];
+  const option = document.createElement("option");
+  option.value = member;
+  option.textContent = member;
+  dropdown.appendChild(option);
 
-// ドロップアウト時（フォーカスが外れたとき）の処理
-daySelect.onblur = function() {
-    const selectedMember = daySelect.value;
-    const options = daySelect.querySelectorAll('option');
-    options.forEach(option => {
-        if (option.value === selectedMember) {
-            option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
-        } else {
-            option.textContent = `${option.value}`;  // 他のオプションにはdaySign[n]を表示
-        }
-    });
-    isClicked = false; // クリック状態をリセット
-};
-
-
-    // 夜1のドロップダウン
-    const night1Select = document.getElementById(`member${i}_night1`);
-    night1Select.innerHTML = ""; // 既存のオプションをクリア
-    // ドロップダウン内にメンバーを追加
-    for (let j = 0; j < night1Members.length; j++) {
-      const option = document.createElement("option");
-      option.value = night1Members[j];
-      option.textContent = night1Members[j];
-      night1Select.appendChild(option);
-      if (night1Members[j] === Night1Array[i] && Rem) {
-            option.selected = true; // 初期値を選択
-            console.log("初期値設定2: " + night1Members[j]);
-        }
-    }
- 
-    // 夜1のドロップダウンで選択が変更されたときの処理
-    let night1Clicked = false; // クリック中かどうかを判定するフラグ
-    night1Select.onclick = function() {
-      console.log("click",i);
-      if (!night1Clicked) {
-        // クリック中の処理：全てのオプションにnight1Sign[index]を追加
-        const options = night1Select.querySelectorAll('option');
-        options.forEach((option, index) => {
-          var result2="";
-          if(PoD){
-            result2=" "+night1Pos[index]
-          }
-          if(Night1Array.includes(option.value)&&Rem){
-        //含まれている。
-        option.disabled=true;
-      }
-      else{
-        option.disabled=false;
-      }
-          option.textContent = `${night1Sign[index]}${result2}：${option.value}`;  // night1Sign[n]を使って表示
-         // console.log(option,index)
-        });
-        night1Clicked = true; // クリック中にした
-      } else {
-        // クリック後の処理：選択されたメンバーだけを名前のみ表示
-        const selectedMember = night1Select.value;
-        const options = night1Select.querySelectorAll('option');
-        options.forEach(option => {
-          if (option.value === selectedMember) {
-            option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
-          } else {
-            option.textContent = `${night1Sign[night1Members.indexOf(option.value)]}：${option.value}`;  // 他のオプションにはnight1Sign[n]を表示
-          }
-          console.log("呼ばれていない？");
-        });
-        night1Clicked = false; // 再度クリック後の状態に戻す
-      }
-    };
-    night1Select.onblur = function() {
-    const selectedMember = night1Select.value;
-    const options = night1Select.querySelectorAll('option');
-    options.forEach(option => {
-      console.log("犯人は私ですか");
-        if (option.value === selectedMember) {
-            option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
-        } else {
-            option.textContent = `${option.value}`;  // 他のオプションにはdaySign[n]を表示
-        }
-    });
-    night1Clicked = false; // クリック状態をリセット
-};
-
-    // 夜2のドロップダウン
-    const night2Select = document.getElementById(`member${i}_night2`);
-    night2Select.innerHTML = ""; // 既存のオプションをクリア
-    // ドロップダウン内にメンバーを追加
-    for (let j = 0; j < night2Members.length; j++) {
-      const option = document.createElement("option");
-      option.value = night2Members[j];
-      option.textContent = night2Members[j];
-      night2Select.appendChild(option);
-      if (night2Members[j] === Night2Array[i] && Rem) {
-            option.selected = true; // 初期値を選択
-            console.log("初期値設定: " + night2Members[j]);
-        }
-    }
-
-    // 夜2のドロップダウンで選択が変更されたときの処理
-    let night2Clicked = false; // クリック中かどうかを判定するフラグ
-    night2Select.onclick = function() {
-      if (!night2Clicked) {
-        // クリック中の処理：全てのオプションにnight2Sign[index]を追加
-        const options = night2Select.querySelectorAll('option');
-        options.forEach((option, index) => {
-          var result="";
-          if(PoD){
-            result=" "+night2Pos[index]
-          }
-          if(Night2Array.includes(option.value) &&Rem){
-        //含まれている。
-        option.disabled=true;
-      }
-      else{
-        option.disabled=false;
-      }
-          option.textContent = `${night2Sign[index]}${result}：${option.value}`;  // night2Sign[n]を使って表示
-        });
-        night2Clicked = true; // クリック中にした
-      } else {
-        // クリック後の処理：選択されたメンバーだけを名前のみ表示
-        const selectedMember = night2Select.value;
-        const options = night2Select.querySelectorAll('option');
-        options.forEach(option => {
-          if (option.value === selectedMember) {
-            option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
-          } else {
-            option.textContent = `${night2Sign[night2Members.indexOf(option.value)]}：${option.value}`;  // 他のオプションにはnight2Sign[n]を表示
-          }
-        });
-        night2Clicked = false; // 再度クリック後の状態に戻す
-      }
-    };
-
-    
-    night2Select.onblur = function() {
-    const selectedMember = night2Select.value;
-    const options = night2Select.querySelectorAll('option');
-    options.forEach(option => {
-        if (option.value === selectedMember) {
-            option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
-        } else {
-            option.textContent = `${option.value}`;  // 他のオプションにはdaySign[n]を表示
-        }
-    });
-    night2Clicked = false; // クリック状態をリセット
-};
-
+  if (member === array[index] &&Rem) {
+    option.selected = true;
   }
-
 
 }
+
+  setupClickEvents(dropdown, index, type, members, signs, positions, array);
+}
+
+// クリックイベントのセットアップ
+function setupClickEvents(dropdown, index, type, members, signs, positions, array) {
+  let isClicked = false; // クリック状態を判定するフラグ
+
+  dropdown.onclick = function () {
+    if (!isClicked) {
+      const options = dropdown.querySelectorAll("option");
+      options.forEach((option, idx) => {
+        const result = PoD ? ` ${positions[idx]}` : "";
+        option.textContent = `${signs[idx]}${result}：${option.value}`;
+        option.disabled = array.includes(option.value) && Rem;
+      });
+      isClicked = true;
+    } else {
+      const selectedMember = dropdown.value;
+      array[index] = selectedMember;
+      const options = dropdown.querySelectorAll("option");
+      options.forEach(option => {
+        option.textContent = option.value === selectedMember
+          ? selectedMember
+          : `${signs[members.indexOf(option.value)]}：${option.value}`;
+      });
+      isClicked = false;
+    }
+  };
+
+  dropdown.onblur = function () {
+    const selectedMember = dropdown.value;
+    const options = dropdown.querySelectorAll("option");
+    options.forEach(option => {
+      option.textContent = option.value === selectedMember
+        ? selectedMember
+        : `${signs[members.indexOf(option.value)]}：${option.value}`;
+    });
+    isClicked = false;
+  };
+}
+
+
 
 
 // 表示中の選択肢をlocalStorageに保存する関数
@@ -678,7 +527,7 @@ function loadRem() {
 <style>
   #resize{
     text-align: center;
-    height: 30px;
+
     width: 20%; /* 必要に応じて調整 */
  /* white-space: nowrap; /* テキストの折り返しを防ぐ */
   /*overflow: hidden; /* はみ出たテキストを隠す */
@@ -714,7 +563,11 @@ input{
   width: 120px; 
   text-overflow: ellipsis; /* はみ出たテキストを省略する */
 }
-
+.input2{
+ /* フォントサイズ */
+  width: 80px; 
+  text-overflow: ellipsis; /* はみ出たテキストを省略する */
+}
 .output{
   margin-top: 20px;  
   white-space: pre-wrap;
