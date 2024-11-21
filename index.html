@@ -224,8 +224,8 @@ function setupDropdown(type, index, members, signs, positions, array) {
   }
 console.log("よばれた");
   if(situation){
-    const result = PoD ? ` ${positions[index]}` : "";
-    option.textContent = `${signs[index]}${result}：${option.value}`;
+    const result = PoD ? ` ${positions[j]}` : "";
+    option.textContent = `${signs[j]}${result}：${option.value}`;
   }
   else{
     option.textContent = member;
