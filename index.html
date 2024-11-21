@@ -244,56 +244,57 @@ function setupClickEvents(dropdown, index, type, members, signs, positions, arra
   let lastSelectedValue = dropdown.value; // 最後に選択されていた値を保存
 
   if(!situation){
-  // ドロップダウンを開いた時の処理
-  const handleDropdownOpen = () => {
-    const options = dropdown.querySelectorAll("option");
-    options.forEach((option, idx) => {
-      const result = PoD ? ` ${positions[idx]}` : "";
-      option.textContent = `${signs[idx]}${result}：${option.value}`;
-      option.disabled = array.includes(option.value) && Rem;
-    });
-    isClicked = true;
-  };
+  // // ドロップダウンを開いた時の処理
+  // const handleDropdownOpen = () => {
+  //   const options = dropdown.querySelectorAll("option");
+  //   options.forEach((option, idx) => {
+  //     const result = PoD ? ` ${positions[idx]}` : "";
+  //     option.textContent = `${signs[idx]}${result}：${option.value}`;
+  //     option.disabled = array.includes(option.value) && Rem;
+  //   });
+  //   isClicked = true;
+  // };
 
-  // ドロップダウンが閉じられた時の処理
-  const handleDropdownClose = () => {
-    const selectedMember = dropdown.value;
-    const options = dropdown.querySelectorAll("option");
+  // // ドロップダウンが閉じられた時の処理
+  // const handleDropdownClose = () => {
+  //   const selectedMember = dropdown.value;
+  //   const options = dropdown.querySelectorAll("option");
 
-    if (selectedMember === lastSelectedValue) {
-      // 選択肢を変えずに閉じた場合の処理
-      console.log(`ドロップダウンが閉じられました（選択肢未変更: ${selectedMember}）`);
-    } else {
-      // 選択肢が変更された場合の処理
-      array[index] = selectedMember;
-      lastSelectedValue = selectedMember; // 最終選択値を更新
-      console.log(`ドロップダウンが閉じられました（選択肢変更: ${selectedMember}）`);
-    }
+  //   if (selectedMember === lastSelectedValue) {
+  //     // 選択肢を変えずに閉じた場合の処理
+  //     console.log(`ドロップダウンが閉じられました（選択肢未変更: ${selectedMember}）`);
+  //   } else {
+  //     // 選択肢が変更された場合の処理
+  //     array[index] = selectedMember;
+  //     lastSelectedValue = selectedMember; // 最終選択値を更新
+  //     console.log(`ドロップダウンが閉じられました（選択肢変更: ${selectedMember}）`);
+  //   }
 
-    options.forEach(option => {
-      option.textContent = option.value === selectedMember
-        ? selectedMember
-        : `${signs[members.indexOf(option.value)]}：${option.value}`;
-    });
-    isClicked = false;
-  };
+  //   options.forEach(option => {
+  //     option.textContent = option.value === selectedMember
+  //       ? selectedMember
+  //       : `${signs[members.indexOf(option.value)]}：${option.value}`;
+  //   });
+  //   isClicked = false;
+  // };
 
-  // タップやクリックイベントに応じた処理
-  dropdown.addEventListener("touchstart", handleDropdownOpen);
-  dropdown.addEventListener("click", () => {
-    if (!isClicked) {
-      handleDropdownOpen();
-    } else {
-      handleDropdownClose();
-    }
-  });
+  // // タップやクリックイベントに応じた処理
+  // dropdown.addEventListener("touchstart", handleDropdownOpen);
+  // dropdown.addEventListener("click", () => {
+  //   if (!isClicked) {
+  //     handleDropdownOpen();
+  //   } else {
+  //     handleDropdownClose();
+  //   }
+  // });
 
-  // フォーカスが外れた時の処理
-  dropdown.addEventListener("blur", handleDropdownClose);
+  // // フォーカスが外れた時の処理
+  // dropdown.addEventListener("blur", handleDropdownClose);
+
+
 }
 
 }
-
 
 
 
@@ -715,10 +716,12 @@ option:disabled {
   </table>
 
   <button onclick="resetData()">リセット</button>
+  
   <button onclick="resetParticipationData()">参加予定リセット</button>
-  <h2>前衛予定リスト <button onclick="positionDisplay()" class="UIButton">ポジション表示<div id="POD">OFF</div></button>
+  <h2>前衛予定リスト <button onclick="situationToggle()" class="UIButton">ステータス反映モード<div id="Sit">OFF</div></button>
+    <button onclick="positionDisplay()" class="UIButton">ポジション表示<div id="POD">OFF</div></button>
   <button onclick="remove()" class="UIButton">絞り込み機能<div id="Rem">OFF</div></button>
-  <button onclick="situationToggle()" class="UIButton">ステータス反映モード<div id="Sit">OFF</div></button></h2> 
+  </h2> 
 
   <table border="1" id="scheduleTable">
     <thead>
