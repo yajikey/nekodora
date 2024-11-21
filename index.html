@@ -217,17 +217,25 @@ function setupDropdown(type, index, members, signs, positions, array) {
   const member = members[j];
   const option = document.createElement("option");
   option.value = member;
-  option.textContent = member;
   dropdown.appendChild(option);
 
   if (member === array[index] &&Rem) {
     option.selected = true;
   }
 
+  if(situation){
+    const result = PoD ? ` ${positions[index]}` : "";
+    option.textContent = `${signs[index]}${result}：${option.value}`;
+  }
+  else{
+    option.textContent = member;
+  }
+
 }
 
   setupClickEvents(dropdown, index, type, members, signs, positions, array);
 }
+
 
 // クリックイベントのセットアップ
 // クリックイベントのセットアップ
@@ -453,6 +461,7 @@ output+="\n";
       console.log("再読み込み")
       loadPod();
       loadRem();
+      loadSit();
       populateMemberOptions();
       loadCurrentSelections();  // 保存された選択肢を反映
       setupChangeListeners(); 
@@ -495,6 +504,22 @@ function remove(){
    saveCurrentSelections();
 }
 
+var situation=false;
+var SitToggle="OFF";
+   function situationToggle(){
+    situation=!situation;
+    if(situation){
+      SitToggle="ON";
+   }
+   else{
+    SitToggle="OFF";
+   }
+   var object=document.getElementById("Sit");
+   localStorage.setItem("Sit", situation.toString());
+   object.innerText=SitToggle;
+   populateMemberOptions();
+   saveCurrentSelections();
+   }
 
 // **読み込み（ロード）**
 function loadPod() {
@@ -532,11 +557,28 @@ function loadRem() {
    else{
     Remtoggle="OFF";
    }
-    var object=document.getElementById("Rem");
+   var object=document.getElementById("Rem");
     object.innerText=Remtoggle;
 }
 
-
+// **読み込み（ロード）**
+function loadSit() {
+    const savedRem = localStorage.getItem("Sit"); // 保存されたデータを取得
+    if (savedRem !== null) {
+        situation = (savedRem === "true"); // "true" を true に変換
+        console.log("Remを読み込みました:", situation);
+    } else {
+        console.log("Remの保存データがありません。");
+    }
+    if(situation){
+      SitToggle="ON";
+   }
+   else{
+    SitToggle="OFF";
+   }
+   var object=document.getElementById("Sit");
+   object.innerText=SitToggle;
+}
 
 
   </script>
@@ -573,6 +615,28 @@ function loadRem() {
   appearance: none;    
 }
 
+@supports (-webkit-touch-callout: none) {
+  /* Safari向けのスタイル */
+  #member1, #member2, #member3, #member4, #member5 ,
+#member1_night1, #member2_night1, #member3_night1, #member4_night1, #member5_night1,
+#member1_night2, #member2_night2, #member3_night2, #member4_night2, #member5_night2 
+{
+  width: 100%; /* 固定幅 */
+  height: 30px; /* 高さを設定 */
+  font-size: 12px; /* フォントサイズ */
+  padding: 5px; /* 内側の余白 */
+  border: 1px solid #ccc; /* 枠線 */
+  border-radius: 5px; /* 角を丸くする */
+  background-color: #f9f9f9; /* 背景色 */
+  outline: none; /* 選択時の青い枠線を削除 */
+  text-overflow: ellipsis; /* はみ出たテキストを省略する */
+  -webkit-appearance: none; /* Safari, Chrome */
+  -moz-appearance: none;    /* Firefox */
+  appearance: none;    
+}
+}
+
+
 .tableLayout{
   width: 100%; /* 固定幅 */
 }
@@ -599,7 +663,10 @@ option:disabled {
   color: red;        /* 文字色を灰色に */
   background-color: lightgray; /* 背景色を薄いグレーに */
 }
-
+.UIButton{
+  font-size: 10px; /* フォントサイズ */
+ 
+}
 
 </style>
 
@@ -644,9 +711,10 @@ option:disabled {
 
   <button onclick="resetData()">リセット</button>
   <button onclick="resetParticipationData()">参加予定リセット</button>
-  <h2>前衛予定リスト <button onclick="positionDisplay()">ポジション表示<div id="POD">OFF</div></button>
-  <button onclick="remove()">絞り込み機能<div id="Rem">OFF</div></button></h2> 
- 
+  <h2>前衛予定リスト <button onclick="positionDisplay()" class="UIButton">ポジション表示<div id="POD">OFF</div></button>
+  <button onclick="remove()" class="UIButton">絞り込み機能<div id="Rem">OFF</div></button>
+  <button onclick="situationToggle()" class="UIButton">ステータス反映モード<div id="Sit">OFF</div></button></h2> 
+
   <table border="1" id="scheduleTable">
     <thead>
       <tr>
