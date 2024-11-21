@@ -235,30 +235,19 @@ function setupClickEvents(dropdown, index, type, members, signs, positions, arra
   let isClicked = false; // クリック状態を判定するフラグ
   let lastSelectedValue = dropdown.value; // 最後に選択されていた値を保存
 
-  dropdown.onclick = function () {
-    if (!isClicked) {
-      const options = dropdown.querySelectorAll("option");
-      options.forEach((option, idx) => {
-        const result = PoD ? ` ${positions[idx]}` : "";
-        option.textContent = `${signs[idx]}${result}：${option.value}`;
-        option.disabled = array.includes(option.value) && Rem;
-      });
-      isClicked = true;
-    } else {
-      const selectedMember = dropdown.value;
-      array[index] = selectedMember;
-      const options = dropdown.querySelectorAll("option");
-      options.forEach(option => {
-        option.textContent = option.value === selectedMember
-          ? selectedMember
-          : `${signs[members.indexOf(option.value)]}：${option.value}`;
-      });
-      isClicked = false;
-      lastSelectedValue = selectedMember; // 最終選択値を更新
-    }
+  // ドロップダウンを開いた時の処理
+  const handleDropdownOpen = () => {
+    const options = dropdown.querySelectorAll("option");
+    options.forEach((option, idx) => {
+      const result = PoD ? ` ${positions[idx]}` : "";
+      option.textContent = `${signs[idx]}${result}：${option.value}`;
+      option.disabled = array.includes(option.value) && Rem;
+    });
+    isClicked = true;
   };
 
-  dropdown.onblur = function () {
+  // ドロップダウンが閉じられた時の処理
+  const handleDropdownClose = () => {
     const selectedMember = dropdown.value;
     const options = dropdown.querySelectorAll("option");
 
@@ -279,6 +268,19 @@ function setupClickEvents(dropdown, index, type, members, signs, positions, arra
     });
     isClicked = false;
   };
+
+  // タップやクリックイベントに応じた処理
+  dropdown.addEventListener("touchstart", handleDropdownOpen);
+  dropdown.addEventListener("click", () => {
+    if (!isClicked) {
+      handleDropdownOpen();
+    } else {
+      handleDropdownClose();
+    }
+  });
+
+  // フォーカスが外れた時の処理
+  dropdown.addEventListener("blur", handleDropdownClose);
 }
 
 
@@ -566,6 +568,9 @@ function loadRem() {
   background-color: #f9f9f9; /* 背景色 */
   outline: none; /* 選択時の青い枠線を削除 */
   text-overflow: ellipsis; /* はみ出たテキストを省略する */
+  -webkit-appearance: none; /* Safari, Chrome */
+  -moz-appearance: none;    /* Firefox */
+  appearance: none;    
 }
 
 .tableLayout{
