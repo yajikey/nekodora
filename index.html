@@ -26,6 +26,8 @@
       { name: "漣華", position: "前", evaluations: ["〇", "〇", "〇"], drablere1: "", drablere2: "" }
     ];
 
+
+    //ギルドメンバーの表を作る。
     function createTable() {
       const memberCount = parseInt(document.getElementById("memberCount").value);
       const tableBody = document.getElementById("guildTableBody");
@@ -45,7 +47,11 @@
         const nameInput = document.createElement("input");
         nameInput.type = "text";
         nameInput.value = savedData[i]?.name || "";
-        nameInput.oninput = saveData;
+        nameInput.oninput = function() {
+  console.log("Input changed"); // これでイベントが発火しているか確認
+  saveData();
+  populateMemberOptions();
+};
         nameCell.appendChild(nameInput);
         row.appendChild(nameCell);
 
@@ -58,7 +64,10 @@
           if (optionText === (savedData[i]?.position || "前")) option.selected = true;
           positionSelect.appendChild(option);
         });
-        positionSelect.onchange = saveData;
+        positionSelect.onchange = function() {
+  saveData();
+  populateMemberOptions();
+};
         positionCell.appendChild(positionSelect);
         row.appendChild(positionCell);
 
@@ -72,7 +81,10 @@
             if (optionText === (savedData[i]?.evaluations[index] || "？")) option.selected = true;
             evalSelect.appendChild(option);
           });
-          evalSelect.onchange = saveData;
+          evalSelect.onchange = function() {
+  saveData();
+  populateMemberOptions();
+};
           evalCell.appendChild(evalSelect);
           row.appendChild(evalCell);
         });
@@ -81,7 +93,11 @@
         const dbInput1 = document.createElement("input");
         dbInput1.type = "text";
         dbInput1.value = savedData[i]?.drablere1 || "";
-        dbInput1.oninput = saveData;
+        dbInput1.oninput = function() {
+  console.log("Input changed"); // これでイベントが発火しているか確認
+  saveData();
+  populateMemberOptions();
+};
         dbCell1.appendChild(dbInput1);
         row.appendChild(dbCell1);
 
@@ -89,13 +105,18 @@
         const dbInput2 = document.createElement("input");
         dbInput2.type = "text";
         dbInput2.value = savedData[i]?.drablere2 || "";
-        dbInput2.oninput = saveData;
+        dbInput2.oninput = function() {
+  console.log("Input changed"); // これでイベントが発火しているか確認
+  saveData();
+  populateMemberOptions();
+};
         dbCell2.appendChild(dbInput2);
         row.appendChild(dbCell2);
 
         tableBody.appendChild(row);
       }
     }
+
 
     function saveData() {
       const tableBody = document.getElementById("guildTableBody");
@@ -115,11 +136,13 @@
       localStorage.setItem("guildData", JSON.stringify(data));
     }
 
+    //リセットボタン
     function resetData() {
       localStorage.setItem("guildData", JSON.stringify(initialData));
       createTable();
     }
 
+    //デフォルトに戻す
     function resetParticipationData() {
       const savedData = JSON.parse(localStorage.getItem("guildData")) || initialData;
       savedData.forEach(member => {
@@ -127,21 +150,32 @@
       });
       localStorage.setItem("guildData", JSON.stringify(savedData));
       createTable();
+      
     }
-function initializeTable() {
-  const table = document.getElementById("scheduleTable");
-  table.addEventListener("input", populateMemberOptions); // テーブル更新時にドロップダウンを更新
 
-  populateMemberOptions(); // 初期ロード時にドロップダウンを表示
-}
-//evaluations
+
+
+//前衛メンバーを管理
+let DayArray = new Array(5);
+let Night1Array = new Array(5);
+let Night2Array = new Array(5);
 function populateMemberOptions() {
   const savedData = JSON.parse(localStorage.getItem("guildData")) || initialData;
 
+  console.log("起動");
   // ドロップダウンのメンバーを格納する配列
   const dayMembers = [];
   const night1Members = [];
   const night2Members = [];
+
+  const daySign = [];
+  const night1Sign = [];
+  const night2Sign = [];
+
+  const dayPos = [];
+  const night1Pos = [];
+  const night2Pos = [];
+
 
   // メンバーの評価に基づいてフィルタリング
   savedData.forEach(member => {
@@ -149,49 +183,300 @@ function populateMemberOptions() {
       // 昼のドロップダウンにはすべての評価が〇のメンバーを表示
       if (member.evaluations[0] !== "×") {
         dayMembers.push(member.name);
+        daySign.push(member.evaluations[0]);
+        dayPos.push("("+member.position+")");
       }
       // 夜1のドロップダウンには2番目の評価が〇のメンバーを表示
       if (member.evaluations[1] !== "×") {
         night1Members.push(member.name);
+        night1Sign.push(member.evaluations[1]);
+        night1Pos.push("("+member.position+")");
       }
       // 夜2のドロップダウンには3番目の評価が〇のメンバーを表示
       if (member.evaluations[2] !== "×") {
         night2Members.push(member.name);
+        night2Sign.push(member.evaluations[2]);
+        night2Pos.push("("+member.position+")");
       }
+      
     }
   });
 
+
   // ドロップダウンにメンバーを追加
   for (let i = 1; i <= 5; i++) {
+    const numberPrefix = `${i}:`;
+    DayArray[i]=dayMembers[i-1];
+    Night1Array[i]=night1Members[i-1];
+    Night2Array[i]=night2Members[i-1];
+    
+   // console.log(DayArray[i-1]);
     // 昼のドロップダウン
     const daySelect = document.getElementById(`member${i}`);
+    daySelect.addEventListener("change", saveCurrentSelections);
     daySelect.innerHTML = ""; // 既存のオプションをクリア
-    dayMembers.forEach(member => {
+    // ドロップダウン内にメンバーを追加
+    for (let j = 0; j < dayMembers.length; j++) {
+ 
       const option = document.createElement("option");
-      option.value = member;
-      option.textContent = member;
+      option.value = dayMembers[j];
+      option.textContent = dayMembers[j];
       daySelect.appendChild(option);
+      if (dayMembers[j] === DayArray[i] && Rem) {
+            option.selected = true; // 初期値を選択
+            console.log("初期値設定: " + dayMembers[j]);
+        }
+  }
+
+    // 昼のドロップダウンで選択が変更されたときの処理
+    let isClicked = false; // クリック中かどうかを判定するフラグ
+    daySelect.onclick = function() {
+      if (!isClicked) {
+        
+        // クリック中の処理：全てのオプションにdaySign[index]を追加
+        const options = daySelect.querySelectorAll('option');
+        options.forEach((option, index) => {
+          var result="";
+          if(PoD){
+            result=" "+dayPos[index]
+          }
+          option.textContent = `${daySign[index]}${result}：${option.value}`;  // daySign[n]を使って表示
+          if(DayArray.includes(option.value)&&Rem){
+        //含まれている。
+        option.disabled=true;
+      }
+      else{
+        option.disabled=false;
+      }
+        });
+        isClicked = true; // クリック中にした
+      } else {
+        // クリック後の処理：選択されたメンバーだけを名前のみ表示
+        const selectedMember = daySelect.value;
+        DayArray[i]=daySelect.value;
+        console.log(i+"に"+daySelect.value+"が入った");
+        const options = daySelect.querySelectorAll('option');
+        options.forEach(option => {
+          if (option.value === selectedMember) {
+            option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
+
+          } else {
+            option.textContent = `${daySign[dayMembers.indexOf(option.value)]}：${option.value}`;  // 他のオプションにはdaySign[n]を表示
+          }
+        });
+        isClicked = false; // 再度クリック後の状態に戻す
+      }
+    };
+
+// ドロップアウト時（フォーカスが外れたとき）の処理
+daySelect.onblur = function() {
+    const selectedMember = daySelect.value;
+    const options = daySelect.querySelectorAll('option');
+    options.forEach(option => {
+        if (option.value === selectedMember) {
+            option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
+        } else {
+            option.textContent = `${daySign[dayMembers.indexOf(option.value)]}：${option.value}`;  // 他のオプションにはdaySign[n]を表示
+        }
     });
+    isClicked = false; // クリック状態をリセット
+};
+
 
     // 夜1のドロップダウン
     const night1Select = document.getElementById(`member${i}_night1`);
     night1Select.innerHTML = ""; // 既存のオプションをクリア
-    night1Members.forEach(member => {
+    // ドロップダウン内にメンバーを追加
+    for (let j = 0; j < night1Members.length; j++) {
       const option = document.createElement("option");
-      option.value = member;
-      option.textContent = member;
+      option.value = night1Members[j];
+      option.textContent = night1Members[j];
       night1Select.appendChild(option);
+      if (night1Members[j] === Night1Array[i] && Rem) {
+            option.selected = true; // 初期値を選択
+            console.log("初期値設定2: " + night1Members[j]);
+        }
+    }
+ 
+    // 夜1のドロップダウンで選択が変更されたときの処理
+    let night1Clicked = false; // クリック中かどうかを判定するフラグ
+    night1Select.onclick = function() {
+      console.log("click",i);
+      if (!night1Clicked) {
+        // クリック中の処理：全てのオプションにnight1Sign[index]を追加
+        const options = night1Select.querySelectorAll('option');
+        options.forEach((option, index) => {
+          var result2="";
+          if(PoD){
+            result2=" "+night1Pos[index]
+          }
+          if(Night1Array.includes(option.value)&&Rem){
+        //含まれている。
+        option.disabled=true;
+      }
+      else{
+        option.disabled=false;
+      }
+          option.textContent = `${night1Sign[index]}${result2}：${option.value}`;  // night1Sign[n]を使って表示
+         // console.log(option,index)
+        });
+        night1Clicked = true; // クリック中にした
+      } else {
+        // クリック後の処理：選択されたメンバーだけを名前のみ表示
+        const selectedMember = night1Select.value;
+        const options = night1Select.querySelectorAll('option');
+        options.forEach(option => {
+          if (option.value === selectedMember) {
+            option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
+          } else {
+            option.textContent = `${night1Sign[night1Members.indexOf(option.value)]}：${option.value}`;  // 他のオプションにはnight1Sign[n]を表示
+          }
+          console.log("呼ばれていない？");
+        });
+        night1Clicked = false; // 再度クリック後の状態に戻す
+      }
+    };
+    night1Select.onblur = function() {
+    const selectedMember = night1Select.value;
+    const options = night1Select.querySelectorAll('option');
+    options.forEach(option => {
+      console.log("犯人は私ですか");
+        if (option.value === selectedMember) {
+            option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
+        } else {
+            option.textContent = `${night1Sign[night1Members.indexOf(option.value)]}：${option.value}`;  // 他のオプションにはdaySign[n]を表示
+        }
     });
+    night1Clicked = false; // クリック状態をリセット
+};
 
     // 夜2のドロップダウン
     const night2Select = document.getElementById(`member${i}_night2`);
     night2Select.innerHTML = ""; // 既存のオプションをクリア
-    night2Members.forEach(member => {
+    // ドロップダウン内にメンバーを追加
+    for (let j = 0; j < night2Members.length; j++) {
       const option = document.createElement("option");
-      option.value = member;
-      option.textContent = member;
+      option.value = night2Members[j];
+      option.textContent = night2Members[j];
       night2Select.appendChild(option);
+      if (night2Members[j] === Night2Array[i] && Rem) {
+            option.selected = true; // 初期値を選択
+            console.log("初期値設定: " + night2Members[j]);
+        }
+    }
+
+    // 夜2のドロップダウンで選択が変更されたときの処理
+    let night2Clicked = false; // クリック中かどうかを判定するフラグ
+    night2Select.onclick = function() {
+      if (!night2Clicked) {
+        // クリック中の処理：全てのオプションにnight2Sign[index]を追加
+        const options = night2Select.querySelectorAll('option');
+        options.forEach((option, index) => {
+          var result="";
+          if(PoD){
+            result=" "+night2Pos[index]
+          }
+          if(Night2Array.includes(option.value) &&Rem){
+        //含まれている。
+        option.disabled=true;
+      }
+      else{
+        option.disabled=false;
+      }
+          option.textContent = `${night2Sign[index]}${result}：${option.value}`;  // night2Sign[n]を使って表示
+        });
+        night2Clicked = true; // クリック中にした
+      } else {
+        // クリック後の処理：選択されたメンバーだけを名前のみ表示
+        const selectedMember = night2Select.value;
+        const options = night2Select.querySelectorAll('option');
+        options.forEach(option => {
+          if (option.value === selectedMember) {
+            option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
+          } else {
+            option.textContent = `${night2Sign[night2Members.indexOf(option.value)]}：${option.value}`;  // 他のオプションにはnight2Sign[n]を表示
+          }
+        });
+        night2Clicked = false; // 再度クリック後の状態に戻す
+      }
+    };
+
+    
+    night2Select.onblur = function() {
+    const selectedMember = night2Select.value;
+    const options = night2Select.querySelectorAll('option');
+    options.forEach(option => {
+        if (option.value === selectedMember) {
+            option.textContent = selectedMember;  // 選択されたメンバーは名前のみ表示
+        } else {
+            option.textContent = `${night2Sign[night2Members.indexOf(option.value)]}：${option.value}`;  // 他のオプションにはdaySign[n]を表示
+        }
     });
+    night2Clicked = false; // クリック状態をリセット
+};
+
+  }
+
+
+}
+
+
+// 表示中の選択肢をlocalStorageに保存する関数
+function saveCurrentSelections() {
+  const selections = {};
+console.log("save");
+  // 各ドロップダウンの選択肢を取得して保存
+  for (let i = 1; i <= 5; i++) {
+    const daySelect = document.getElementById(`member${i}`);
+    const night1Select = document.getElementById(`member${i}_night1`);
+    const night2Select = document.getElementById(`member${i}_night2`);
+
+   
+    selections[`member${i}_day`] = daySelect.value;
+    selections[`member${i}_night1`] = night1Select.value;
+    selections[`member${i}_night2`] = night2Select.value;
+DayArray[i]=daySelect.value;
+
+//console.log(DayArray[i]);
+  
+  }
+
+  // localStorageに保存
+  localStorage.setItem("currentSelections", JSON.stringify(selections));
+  //populateMemberOptions();
+  //loadCurrentSelections();
+}
+
+// ページ読み込み時に保存された選択肢を復元する関数
+function loadCurrentSelections() {
+  const selections = JSON.parse(localStorage.getItem("currentSelections"));
+
+  console.log("load");
+  if (selections) {
+    for (let i = 1; i <= 5; i++) {
+      const daySelect = document.getElementById(`member${i}`);
+      const night1Select = document.getElementById(`member${i}_night1`);
+      const night2Select = document.getElementById(`member${i}_night2`);
+
+      // 保存された値をドロップダウンに反映
+      daySelect.value = selections[`member${i}_day`] || "";
+      night1Select.value = selections[`member${i}_night1`] || "";
+      night2Select.value = selections[`member${i}_night2`] || "";
+    }
+  }
+}
+
+// ドロップダウンの変更を監視する関数
+function setupChangeListeners() {
+  for (let i = 1; i <= 5; i++) {
+    const daySelect = document.getElementById(`member${i}`);
+    const night1Select = document.getElementById(`member${i}_night1`);
+    const night2Select = document.getElementById(`member${i}_night2`);
+
+    // それぞれのセレクトボックスに変更リスナーを追加
+    daySelect.addEventListener('change', saveCurrentSelections);
+    night1Select.addEventListener('change', saveCurrentSelections);
+    night2Select.addEventListener('change', saveCurrentSelections);
   }
 }
 
@@ -202,9 +487,7 @@ function populateMemberOptions() {
 
 
 
-
-
-
+//スケジュールを出力
 function outputSchedule() {
   const scheduleTable = document.getElementById("scheduleTable");
   let output = "";
@@ -228,11 +511,12 @@ function outputSchedule() {
   outputDiv.textContent = output; // 表示用のdivに文字列を設定
 }
 
+//ディスコに送信
 function sendSchedule(){
   const scheduleTable = document.getElementById("scheduleTable");
   const selectedDate = document.getElementById("scheduleDate").value; // 選択された日付
   let output = "";
-  output += `日付: ${selectedDate}\n\n`;
+  output += `${selectedDate}の前衛メンバー\n\n`;
   // 1行目（タイトル行）をスキップして、2行目から処理
   for (let i = 1; i < scheduleTable.rows.length; i++) {
     const row = scheduleTable.rows[i];
@@ -273,6 +557,7 @@ output+="\n";
 
   
 }
+
  // ページ読み込み時に日付の初期値を今日の日付に設定
  document.addEventListener("DOMContentLoaded", () => {
       const today = new Date();
@@ -281,13 +566,17 @@ output+="\n";
       const day = String(today.getDate()).padStart(2, '0');
       document.getElementById("scheduleDate").value = `${year}-${month}-${day}`;
     });
-function resetSchedule() {
+
+    function resetSchedule() {
   for (let i = 1; i <= 5; i++) {
     for (const time of ["", "_night1", "_night2"]) {
       const select = document.getElementById(`member${i}${time}`);
+      saveCurrentSelections();
       select.selectedIndex = 0; // 最初の選択肢にリセット
     }
   }
+
+  populateMemberOptions();
 }
 
 
@@ -296,10 +585,152 @@ function resetSchedule() {
       const savedData = JSON.parse(localStorage.getItem("guildData"));
       document.getElementById("memberCount").value = savedData ? savedData.length : initialData.length;
       createTable();
+      console.log("再読み込み")
+      loadPod();
+      loadRem();
       populateMemberOptions();
+      loadCurrentSelections();  // 保存された選択肢を反映
+      setupChangeListeners(); 
 
     };
+
+
+    var PoD=false;
+    var PoDtoggle="OFF";
+    function positionDisplay(){
+     
+      PoD=!PoD;
+      if(PoD){
+        PoDtoggle="ON";
+      }
+      else{  
+      PoDtoggle="OFF";
+      }
+
+      console.log("ポジションの表示を変更した"+PoD);
+      var object=document.getElementById("POD");
+      localStorage.setItem("PoD", PoD.toString());
+            object.innerText=PoDtoggle;
+    }
+
+    var Rem=false;
+    var Remtoggle="OFF";
+function remove(){
+   Rem=!Rem;
+   if(Rem){
+    Remtoggle="ON";
+   }
+   else{
+    Remtoggle="OFF";
+   }
+   var object=document.getElementById("Rem");
+   localStorage.setItem("Rem", Rem.toString());
+   object.innerText=Remtoggle;
+   populateMemberOptions();
+   saveCurrentSelections();
+}
+
+
+// **読み込み（ロード）**
+function loadPod() {
+    const savedRem = localStorage.getItem("PoD"); // 保存されたデータを取得
+    if (savedRem !== null) {
+        PoD = (savedRem === "true"); // "true" を true に変換
+        console.log("Remを読み込みました:", PoD);
+    } else {
+        console.log("Remの保存データがありません。");
+    }
+    if(PoD){
+        PoDtoggle="ON";
+      }
+      else{
+        PoDtoggle="OFF";
+      }
+    var object=document.getElementById("POD");
+            object.innerText=PoDtoggle;
+}
+
+
+
+// **読み込み（ロード）**
+function loadRem() {
+    const savedRem = localStorage.getItem("Rem"); // 保存されたデータを取得
+    if (savedRem !== null) {
+        Rem = (savedRem === "true"); // "true" を true に変換
+        console.log("Remを読み込みました:", Rem);
+    } else {
+        console.log("Remの保存データがありません。");
+    }
+    if(Rem){
+    Remtoggle="ON";
+   }
+   else{
+    Remtoggle="OFF";
+   }
+    var object=document.getElementById("Rem");
+    object.innerText=Remtoggle;
+}
+
+
+
+
   </script>
+<style>
+  #resize{
+    text-align: center;
+    height: 30px;
+    width: 20%; /* 必要に応じて調整 */
+ /* white-space: nowrap; /* テキストの折り返しを防ぐ */
+  /*overflow: hidden; /* はみ出たテキストを隠す */
+ /* text-overflow: ellipsis; /* はみ出たテキストを省略する */
+  }
+  /* 全ての <select> 要素に共通のスタイルを適用 */
+
+/* 昼の選択メニューに適用 */
+
+
+/* 夜1の選択メニューに適用 */
+#member1, #member2, #member3, #member4, #member5 ,
+#member1_night1, #member2_night1, #member3_night1, #member4_night1, #member5_night1,
+#member1_night2, #member2_night2, #member3_night2, #member4_night2, #member5_night2 
+{
+  width: 100%; /* 固定幅 */
+  height: 30px; /* 高さを設定 */
+  font-size: 12px; /* フォントサイズ */
+  padding: 5px; /* 内側の余白 */
+  border: 1px solid #ccc; /* 枠線 */
+  border-radius: 5px; /* 角を丸くする */
+  background-color: #f9f9f9; /* 背景色 */
+  outline: none; /* 選択時の青い枠線を削除 */
+  text-overflow: ellipsis; /* はみ出たテキストを省略する */
+}
+
+.tableLayout{
+  width: 100%; /* 固定幅 */
+}
+
+input{
+  font-size: 11px; /* フォントサイズ */
+  width: 120px; 
+  text-overflow: ellipsis; /* はみ出たテキストを省略する */
+}
+
+.output{
+  margin-top: 20px;  
+  white-space: pre-wrap;
+  margin-left: 10%;
+  font-size: 10px; /* フォントサイズ */
+}
+
+/* disabled 属性が付いている option のスタイルを変更 */
+option:disabled {
+  color: red;        /* 文字色を灰色に */
+  background-color: lightgray; /* 背景色を薄いグレーに */
+}
+
+
+</style>
+
 </head>
 <body>
 
@@ -341,22 +772,26 @@ function resetSchedule() {
 
   <button onclick="resetData()">リセット</button>
   <button onclick="resetParticipationData()">参加予定リセット</button>
-  <h2>前衛予定リスト</h2>
+  <h2>前衛予定リスト <button onclick="positionDisplay()">ポジション表示<div id="POD">OFF</div></button>
+  <button onclick="remove()">絞り込み機能<div id="Rem">OFF</div></button></h2> 
  
   <table border="1" id="scheduleTable">
     <thead>
       <tr>
+
         <th>時間帯</th>
-        <th>メンバー１</th>
-        <th>メンバー２</th>
-        <th>メンバー３</th>
-        <th>メンバー４</th>
-        <th>メンバー５</th>
+        
+        <th id="resize">メンバー１</th>
+        <th id="resize">メンバー２</th>
+        <th id="resize">メンバー３</th>
+        <th id="resize">メンバー４</th>
+        <th id="resize">メンバー５</th>
+      
       </tr>
     </thead>
     <tbody id="scheduleTableBody">
       <tr>
-        <td>昼</td>
+        <td>昼　</td>
         <td><select id="member1"></select></td>
         <td><select id="member2"></select></td>
         <td><select id="member3"></select></td>
@@ -381,7 +816,7 @@ function resetSchedule() {
       </tr>
     </tbody>
   </table>
-  <button onclick="resetSchedule()">参加予定リセット</button>
+  <button onclick="resetSchedule()">メンバーリセット</button>
   <br>
   <label for="">日時を決定し送信ボタンを押すことでディスコードに送信できます</label>
  <br>
@@ -395,9 +830,10 @@ function resetSchedule() {
 
 
 <button id="outputButton" onclick="outputSchedule()">出力</button>
-<div id="outputString" style="margin-top: 20px;  white-space: pre-wrap; text-align: center;"></div>
+<div id="outputString" class="output"></div>
 <br>
 <br> 
 <br>
+
 </body>
 </html>
