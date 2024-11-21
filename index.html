@@ -222,7 +222,7 @@ function setupDropdown(type, index, members, signs, positions, array) {
   if (member === array[index] &&Rem) {
     option.selected = true;
   }
-
+console.log("よばれた");
   if(situation){
     const result = PoD ? ` ${positions[index]}` : "";
     option.textContent = `${signs[index]}${result}：${option.value}`;
@@ -481,6 +481,8 @@ output+="\n";
       PoDtoggle="OFF";
       }
 
+      populateMemberOptions();
+      saveCurrentSelections();
       console.log("ポジションの表示を変更した"+PoD);
       var object=document.getElementById("POD");
       localStorage.setItem("PoD", PoD.toString());
