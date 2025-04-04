@@ -1,0 +1,257 @@
+<!Doctype html>
+<html lang="ja">
+    <head>
+<meta charset="UTF-8">
+<title>ネコドラ上限値計算シミュレーター</title>
+    </head>
+    <style>
+  table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+    </style>
+    <body>
+        
+        <script>
+     
+            function calculateStats() {
+            // 基本値の取得、空欄なら1に設定
+            let AllSt = parseFloat(document.getElementById('AllSt').value) || 1;
+            let PoSt = parseFloat(document.getElementById('PoSt').value) || 1;
+            
+            let DrSt = parseFloat(document.getElementById('DrSt').value) || 0;
+            let DrRate=parseFloat(document.getElementById('DrRate').value) || 0;
+
+            let Name=document.getElementById('name').value;
+            let Now="";
+            let ReduRate = parseFloat(document.getElementById('Redu').innerText) || 1;
+            let AddRate = parseFloat(document.getElementById('Add').innerText) || 1;
+
+            let rate = parseFloat(document.getElementById('Rate').value) || 0;
+
+            let ans =0;
+            // 倍率を計算               
+                if(TypePoint){
+                    //能力
+                    if(simulateRate){
+                        //ドラ倍率
+                        ans=(DrSt/PoSt*100).toFixed(1)+'%';
+                        Now="の対象能力の上限値上昇倍率は";
+                    }
+                    else{
+                        //ドラ上限値
+                        ans=(PoSt*(DrRate/100)*(AddRate*ReduRate)*rate).toFixed(0); 
+                        Now="の対象能力の上限値上昇量は";
+                    }           
+                }
+                else{
+                    //全能力
+                    if(simulateRate){
+                        //ドラ倍率
+                        ans=(DrSt/AllSt*100).toFixed(1)+'%';
+                        Now="の全能力の上限値上昇倍率は";
+                    }
+                    else{
+                        //ドラ上限値
+                        ans=(AllSt*(DrRate/100)*AddRate*ReduRate*rate).toFixed(0); 
+                        Now="の全能力の上限値上昇量は";
+                    }                 
+                }
+                    // 結果の表示（整数値として表示）
+                    console.log(ans.toLocaleString());
+            document.getElementById('reName').innerText = Name;
+            document.getElementById('Now').innerText = Now;
+            document.getElementById('ans').innerText = ans.toLocaleString();
+  
+        }
+
+        var TypePoint=false;
+        var typeV="";
+        function TypeToggle(){
+            TypePoint=!TypePoint;
+             if(TypePoint){
+                typeV="能力";
+             }
+            else{
+                typeV="総戦力";
+            }
+            var object=document.getElementById("TypeV");
+            object.innerText=typeV;
+            calculateStats();
+           // console.log(TypePoint);
+        }
+
+        var simulateRate=false;
+        var simV="";
+        function SimToggle(){
+            simulateRate=!simulateRate;
+
+             if(simulateRate){
+                simV="ドラ倍率";
+             }
+            else{
+                simV="ドラ上限";
+            }
+            var object=document.getElementById("SimV");
+            object.innerText=simV;
+            calculateStats();
+            //console.log(simulateRate);
+        }
+       
+        
+        // ボタンごとの値（例：任意のステータス加算値など）
+const AddbuttonValues = [1.15, 1.10, 1.4, 1.15]; 
+
+// 各ボタンのON/OFF状態を記録（false = OFF、true = ON）
+let activeAddStates = [false, false, false, false];
+
+// ボタンごとの値（例：任意のステータス加算値など）
+const RedubuttonValues = [1.10, 1.10]; 
+
+// 各ボタンのON/OFF状態を記録（false = OFF、true = ON）
+let activeReduStates = [false, false];
+
+// ボタン押下でON/OFFをトグル
+function AddToggle(index) {
+    // トグル処理
+    activeAddStates[index - 1] = !activeAddStates[index - 1];
+
+    // ボタンの表示更新
+    const button = document.getElementById("btn" + index);
+    if (activeAddStates[index - 1]) {
+        button.textContent = "有効";
+    } else {
+        button.textContent = "なし";
+    }
+
+    // 合計の更新
+    SumAdd();
+}
+
+// ボタン押下でON/OFFをトグル
+function ReduToggle(index) {
+    // トグル処理
+    activeReduStates[index - 1] = !activeReduStates[index - 1];
+
+    // ボタンの表示更新
+    const button = document.getElementById("rbtn" + index);
+    if (activeReduStates[index - 1]) {
+        button.textContent = "有効";
+    } else {
+        button.textContent = "なし";
+    }
+
+    // 合計の更新
+    SumRedu();
+}
+
+
+// 合計値の計算
+function SumAdd() {
+    let addsum = 1;
+    for (let i = 0; i < activeAddStates.length; i++) {
+        if (activeAddStates[i]) {
+            addsum =addsum* AddbuttonValues[i];
+        }
+    }
+    document.getElementById("Add").innerText = addsum.toFixed(2);
+    calculateStats();
+}
+
+function SumRedu() {
+    let redusum = 1;
+    for (let i = 0; i < activeReduStates.length; i++) {
+        if (activeReduStates[i]) {
+            redusum =redusum/ RedubuttonValues[i];
+        }
+    }
+    document.getElementById("Redu").innerText = redusum.toFixed(2);
+    calculateStats();
+}
+       </script>
+
+        <h1>ネコドラ上限値計算シミュレーター</h1>
+        <form>
+            <p>計算対象：<button type="button" onclick="TypeToggle()"><span id="TypeV">総戦力</span></button></p>
+            <p>調査対象：<button type="button" onclick="SimToggle()"><span id="SimV">ドラ倍率</span></button></p>
+             <table>
+                <tr>
+                    <th>ステータス</th>
+                    <th>値</th>
+                    <th>結果</th>
+                </tr>
+                <tr>
+                    <td>総戦力</td>
+                    <td><input type="number" id="AllSt" value="2700000" oninput="calculateStats()"></td>
+                    <td>-</td>  
+                </tr>
+                <tr>
+                    <td>能力</td>
+                    <td><input type="number" id="PoSt" value="800000" oninput="calculateStats()"></td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>ドラの名前</td>
+                    <td><input type="text" id="name" value="" oninput="calculateStats()"></td>
+                    <td>-</td>
+                </tr> 
+                <tr>
+                    <td>ドラブレ上昇値</td>
+                    <td><input type="number" id="DrSt" value="1000000" oninput="calculateStats()"></td>
+                    <td>-</td>
+                </tr>
+                    <td>ドラブレ倍率</td>
+                    <td><input type="number" id="DrRate" value="100" oninput="calculateStats()">%</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>上昇補正</td>
+                    <td><span id="Add">1</span>倍</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>下降補正</td>
+                    <td><span id="Redu" >1</span>倍</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td>変動倍率</td>
+                    <td> <input type="number" id="Rate" value="1" oninput="calculateStats()">倍</td>
+                    <td>-</td>
+                </tr>
+                <tr>
+                    <td><span id="reName"></span></td>
+                    <td><span id="Now"></span></td>
+                    <td><span id="ans">0.00%</span></td>
+                </tr>
+            </table>
+        </form>
+
+        <script>
+            // 初期計算を実行
+           calculateStats();
+        </script>
+    
+        <p>*変動倍率(対象じゃない場合は1倍)</p>
+       
+<br>    
+<!-- ボタン群 -->
+<div id="buttonGroup">
+    絢爛豪華な重箱：<button id="btn1" onclick="AddToggle(1)">なし</button><br>
+    ゴキゲンルーラー：<button id="btn2" onclick="AddToggle(2)">なし</button><br>
+    ガンダ・ザック：<button id="btn3" onclick="AddToggle(3)">なし</button><br>
+    終焉の予言：<button id="btn4" onclick="AddToggle(4)">なし</button><br>
+    天下御免：<button id="rbtn1" onclick="ReduToggle(1)">なし</button>
+  </div>
+  
+
+    </body>
+</html>
