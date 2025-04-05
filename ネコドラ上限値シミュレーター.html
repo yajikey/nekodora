@@ -58,7 +58,7 @@ function loadInputs() {
             // 倍率を計算               
             if(simulateRate){
     // 倍率（%表示）
-    ans = (TypePoint ? (DrSt / (PoSt * 100)/AddRate/ReduRate/rate) : (DrSt / AllSt * 100/AddRate/ReduRate/rate)).toFixed(1) + '%';
+    ans = (TypePoint ? (DrSt / (PoSt)/AddRate/ReduRate/rate)*100 : (DrSt / AllSt /AddRate/ReduRate/rate)*100).toFixed(1) + '%';
     Now = TypePoint ? "の対象能力の上限値上昇倍率は" : "の全能力の上限値上昇倍率は";
 } else {
     // 上限値（数値表示）
