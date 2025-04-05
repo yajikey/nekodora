@@ -41,10 +41,10 @@ function loadInputs() {
 
             function calculateStats() {
             // 基本値の取得、空欄なら1に設定
-            let AllSt = parseFloat(document.getElementById('AllSt').value.replace(/,/g, '')) || 1;
-            let PoSt = parseFloat(document.getElementById('PoSt').value.replace(/,/g, '')) || 1;
+            let AllSt = parseFloat(document.getElementById('AllSt').value) || 1;
+            let PoSt = parseFloat(document.getElementById('PoSt').value) || 1;
             
-            let DrSt = parseFloat(document.getElementById('DrSt').value.replace(/,/g, '')) || 0;
+            let DrSt = parseFloat(document.getElementById('DrSt').value) || 0;
             let DrRate=parseFloat(document.getElementById('DrRate').value) || 0;
 
             let Name=document.getElementById('name').value;
@@ -200,31 +200,11 @@ function SumRedu() {
     calculateStats();
 }
 
-function formatNumberInput(input) {
-    let value = input.value.replace(/,/g, '');
-    if (isNaN(value) || value === '') {
-        input.value = '';
-        return;
-    }
-
-    // カーソルの位置を保存
-    let selectionStart = input.selectionStart;
-    let lengthBefore = input.value.length;
-
-    // カンマを挿入したフォーマット処理
-    input.value = parseFloat(value).toLocaleString('en-US');
-
-    // 新しいカーソル位置を計算
-    let lengthAfter = input.value.length;
-    let cursorOffset = lengthAfter - lengthBefore;
-    input.setSelectionRange(selectionStart + cursorOffset, selectionStart + cursorOffset);
-}
 
        </script>
 
         <h1>ネコドラ上限値計算シミュレーター</h1>
         <h5>赤色表示は使用するステータス。青色は求めるステータス。</h5>
-
         <form>
             <p>計算対象：<button type="button" onclick="TypeToggle()"><span id="TypeV">総戦力</span></button></p>
             <p>調査対象：<button type="button" onclick="SimToggle()"><span id="SimV">ドラ上限</span></button></p>
@@ -236,13 +216,13 @@ function formatNumberInput(input) {
                 </tr>
                 <tr>
                     <td id="text">総戦力</td>
-                    <td><input type="text" id="AllSt" value="2,900,000" oninput="formatNumberInput(this); calculateStats()">
+                    <td><input type="number" id="AllSt" value="2900000" oninput="calculateStats()">
                     </td>
                     <td><button type="button" onclick="saveInputs()">セーブ</button></td>
                 </tr>
                 <tr>
                     <td id="text2">能力</td>
-                    <td><input type="text" id="PoSt" value="800,000" oninput="formatNumberInput(this);calculateStats()"></td>
+                    <td><input type="number" id="PoSt" value="800000" oninput="calculateStats()"></td>
                     <td><button type="button" onclick="loadInputs()">ロード</button></td>
                 </tr>
                 <tr>
@@ -252,7 +232,7 @@ function formatNumberInput(input) {
                 </tr> 
                 <tr>
                     <td id="text3">ドラブレ上昇値</td>
-                    <td><input type="text" id="DrSt" value="1,000,000" oninput="formatNumberInput(this);calculateStats()"></td>
+                    <td><input type="number" id="DrSt" value="1000000" oninput="formatNumberInput(this);calculateStats()"></td>
                     <td>-</td>
                 </tr>
                     <td id="text4">ドラブレ倍率</td>
