@@ -81,39 +81,55 @@ function loadInputs() {
   
         }
 
-        var TypePoint=false;
+        var TypePoint=true;
         var typeV="";
         function TypeToggle(){
+            const text = document.getElementById("text");
+            const text2 = document.getElementById("text2");
             TypePoint=!TypePoint;
              if(TypePoint){
                 typeV="能力";
+                text.style.color = "black"; // 能力のとき赤
+                text2.style.color="red";
              }
             else{
                 typeV="総戦力";
+                text.style.color = "red"; // 能力のとき赤
+                text2.style.color="black";
             }
+            var object=document.getElementById("text")
             var object=document.getElementById("TypeV");
             object.innerText=typeV;
             calculateStats();
            // console.log(TypePoint);
         }
 
-        var simulateRate=false;
+        var simulateRate=true;
         var simV="";
         function SimToggle(){
+            const text3 = document.getElementById("text3");
+            const text4 = document.getElementById("text4");
             simulateRate=!simulateRate;
 
              if(simulateRate){
                 simV="ドラ倍率";
+                text3.style.color = "black"; // 能力のとき赤
+                text4.style.color="red";
              }
             else{
                 simV="ドラ上限";
+                text3.style.color = "red"; // 能力のとき赤
+                text4.style.color="black";
             }
             var object=document.getElementById("SimV");
             object.innerText=simV;
             calculateStats();
             //console.log(simulateRate);
         }
-       
+        window.onload = function() {
+    TypeToggle();
+    SimToggle(); // ページ読み込み時に「能力」の色を赤にする
+};
         
         // ボタンごとの値（例：任意のステータス加算値など）
 const AddbuttonValues = [1.15, 1.10, 1.4, 1.15]; 
@@ -160,7 +176,6 @@ function ReduToggle(index) {
     // 合計の更新
     SumRedu();
 }
-
 
 // 合計値の計算
 function SumAdd() {
@@ -218,13 +233,13 @@ function formatNumberInput(input) {
                     <th>結果</th>
                 </tr>
                 <tr>
-                    <td>総戦力</td>
+                    <td id="text">総戦力</td>
                     <td><input type="text" id="AllSt" value="2,900,000" oninput="formatNumberInput(this); calculateStats()">
                     </td>
                     <td><button type="button" onclick="saveInputs()">セーブ</button></td>
                 </tr>
                 <tr>
-                    <td>能力</td>
+                    <td id="text2">能力</td>
                     <td><input type="text" id="PoSt" value="800,000" oninput="formatNumberInput(this);calculateStats()"></td>
                     <td><button type="button" onclick="loadInputs()">ロード</button></td>
                 </tr>
@@ -234,11 +249,11 @@ function formatNumberInput(input) {
                     <td>-</td>
                 </tr> 
                 <tr>
-                    <td>ドラブレ上昇値</td>
+                    <td id="text3">ドラブレ上昇値</td>
                     <td><input type="text" id="DrSt" value="1,000,000" oninput="formatNumberInput(this);calculateStats()"></td>
                     <td>-</td>
                 </tr>
-                    <td>ドラブレ倍率</td>
+                    <td id="text4">ドラブレ倍率</td>
                     <td><input type="number" id="DrRate" value="100" oninput="calculateStats()">%</td>
                     <td>-</td>
                 </tr>
