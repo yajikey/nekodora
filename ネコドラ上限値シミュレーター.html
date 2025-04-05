@@ -185,26 +185,12 @@ function SumRedu() {
     calculateStats();
 }
 
-function formatNumberInput(input) {
-    let value = input.value.replace(/,/g, '');
-    if (isNaN(value) || value === '') {
-        input.value = '';
-        return;
+function formatNumberInput(el) {
+    let value = el.value.replace(/,/g, '');
+    if (!isNaN(value) && value !== '') {
+        el.value = Number(value).toLocaleString();
     }
-
-    // カーソルの位置を保存
-    let selectionStart = input.selectionStart;
-    let lengthBefore = input.value.length;
-
-    // カンマを挿入したフォーマット処理
-    input.value = parseFloat(value).toLocaleString('en-US');
-
-    // 新しいカーソル位置を計算
-    let lengthAfter = input.value.length;
-    let cursorOffset = lengthAfter - lengthBefore;
-    input.setSelectionRange(selectionStart + cursorOffset, selectionStart + cursorOffset);
 }
-
        </script>
 
         <h1>ネコドラ上限値計算シミュレーター</h1>
