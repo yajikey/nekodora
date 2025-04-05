@@ -20,17 +20,31 @@
         input{
             width: 100px;
         }
+
     </style>
     <body>
         
         <script>
-     
+            function saveInputs() {
+    localStorage.setItem('AllSt', document.getElementById('AllSt').value);
+    localStorage.setItem('PoSt', document.getElementById('PoSt').value);
+}
+
+function loadInputs() {
+    const savedAllSt = localStorage.getItem('AllSt');
+    const savedPoSt = localStorage.getItem('PoSt');
+    
+    if (savedAllSt !== null) document.getElementById('AllSt').value = savedAllSt;
+    if (savedPoSt !== null) document.getElementById('PoSt').value = savedPoSt;
+}
+
+
             function calculateStats() {
             // 基本値の取得、空欄なら1に設定
-            let AllSt = parseFloat(document.getElementById('AllSt').value) || 1;
-            let PoSt = parseFloat(document.getElementById('PoSt').value) || 1;
+            let AllSt = parseFloat(document.getElementById('AllSt').value.replace(/,/g, '')) || 1;
+            let PoSt = parseFloat(document.getElementById('PoSt').value.replace(/,/g, '')) || 1;
             
-            let DrSt = parseFloat(document.getElementById('DrSt').value) || 0;
+            let DrSt = parseFloat(document.getElementById('DrSt').value.replace(/,/g, '')) || 0;
             let DrRate=parseFloat(document.getElementById('DrRate').value) || 0;
 
             let Name=document.getElementById('name').value;
@@ -42,37 +56,28 @@
 
             let ans =0;
             // 倍率を計算               
-                if(TypePoint){
-                    //能力
-                    if(simulateRate){
-                        //ドラ倍率
-                        ans=(DrSt/PoSt*100).toFixed(1)+'%';
-                        Now="の対象能力の上限値上昇倍率は";
-                    }
-                    else{
-                        //ドラ上限値
-                        ans=(PoSt*(DrRate/100)*(AddRate*ReduRate)*rate).toFixed(0); 
-                        Now="の対象能力の上限値上昇量は";
-                    }           
-                }
-                else{
-                    //全能力
-                    if(simulateRate){
-                        //ドラ倍率
-                        ans=(DrSt/AllSt*100).toFixed(1)+'%';
-                        Now="の全能力の上限値上昇倍率は";
-                    }
-                    else{
-                        //ドラ上限値
-                        ans=(AllSt*(DrRate/100)*AddRate*ReduRate*rate).toFixed(0); 
-                        Now="の全能力の上限値上昇量は";
-                    }                 
-                }
+            if(simulateRate){
+    // 倍率（%表示）
+    ans = (TypePoint ? (DrSt / PoSt * 100) : (DrSt / AllSt * 100)).toFixed(1) + '%';
+    Now = TypePoint ? "の対象能力の上限値上昇倍率は" : "の全能力の上限値上昇倍率は";
+} else {
+    // 上限値（数値表示）
+    ans = TypePoint
+        ? (PoSt * (DrRate / 100) * AddRate * ReduRate * rate).toFixed(0)
+        : (AllSt * (DrRate / 100) * AddRate * ReduRate * rate).toFixed(0);
+
+    // ✅ カンマ区切りを適用（この行が重要！）
+    ans = Number(ans).toLocaleString();
+
+    Now = TypePoint ? "の対象能力の上限値上昇量は" : "の全能力の上限値上昇量は";
+}
+
+            ans=(ans).toLocaleString();
                     // 結果の表示（整数値として表示）
-                    console.log(ans.toLocaleString());
+                    console.log(ans);
             document.getElementById('reName').innerText = Name;
             document.getElementById('Now').innerText = Now;
-            document.getElementById('ans').innerText = ans.toLocaleString();
+            document.getElementById('ans').innerText = ans;
   
         }
 
@@ -179,12 +184,19 @@ function SumRedu() {
     document.getElementById("Redu").innerText = redusum.toFixed(2);
     calculateStats();
 }
+
+function formatNumberInput(el) {
+    let value = el.value.replace(/,/g, '');
+    if (!isNaN(value) && value !== '') {
+        el.value = Number(value).toLocaleString();
+    }
+}
        </script>
 
         <h1>ネコドラ上限値計算シミュレーター</h1>
         <form>
             <p>計算対象：<button type="button" onclick="TypeToggle()"><span id="TypeV">総戦力</span></button></p>
-            <p>調査対象：<button type="button" onclick="SimToggle()"><span id="SimV">ドラ倍率</span></button></p>
+            <p>調査対象：<button type="button" onclick="SimToggle()"><span id="SimV">ドラ上限</span></button></p>
              <table>
                 <tr>
                     <th>ステータス</th>
@@ -193,13 +205,14 @@ function SumRedu() {
                 </tr>
                 <tr>
                     <td>総戦力</td>
-                    <td><input type="number" id="AllSt" value="2700000" oninput="calculateStats()"></td>
-                    <td>-</td>  
+                    <td><input type="text" id="AllSt" value="2,900,000" oninput="formatNumberInput(this); calculateStats()">
+                    </td>
+                    <td><button type="button" onclick="saveInputs()">セーブ</button></td>
                 </tr>
                 <tr>
                     <td>能力</td>
-                    <td><input type="number" id="PoSt" value="800000" oninput="calculateStats()"></td>
-                    <td>-</td>
+                    <td><input type="text" id="PoSt" value="800,000" oninput="formatNumberInput(this);calculateStats()"></td>
+                    <td><button type="button" onclick="loadInputs()">ロード</button></td>
                 </tr>
                 <tr>
                     <td>ドラの名前</td>
@@ -208,7 +221,7 @@ function SumRedu() {
                 </tr> 
                 <tr>
                     <td>ドラブレ上昇値</td>
-                    <td><input type="number" id="DrSt" value="1000000" oninput="calculateStats()"></td>
+                    <td><input type="text" id="DrSt" value="1,000,000" oninput="formatNumberInput(this);calculateStats()"></td>
                     <td>-</td>
                 </tr>
                     <td>ドラブレ倍率</td>
@@ -241,11 +254,13 @@ function SumRedu() {
         <script>
             // 初期計算を実行
            calculateStats();
+          // loadInputs();
         </script>
     
         <p>*変動倍率(対象じゃない場合は1倍)</p>
+        <h6>セーブで総戦力と能力のセーブができる。ロードでセーブした数値にする。</h6>
+        
        
-<br>    
 <!-- ボタン群 -->
 <div id="buttonGroup">
     絢爛豪華な重箱　　：<button id="btn1" onclick="AddToggle(1)">なし</button><br>
@@ -255,7 +270,8 @@ function SumRedu() {
     天下御免　　　　　：<button id="rbtn1" onclick="ReduToggle(1)">なし</button>
   </div>
   
-  
 
     </body>
+
+<br>
 </html>
