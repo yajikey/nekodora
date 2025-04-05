@@ -114,11 +114,11 @@ function loadInputs() {
              if(simulateRate){
                 simV="ドラ倍率";
                 text3.style.color = "red"; // 能力のとき赤
-                text4.style.color="black";
+                text4.style.color="blue";
              }
             else{
                 simV="ドラ上限";
-                text3.style.color = "black"; // 能力のとき赤
+                text3.style.color = "blue"; // 能力のとき赤
                 text4.style.color="red";
             }
             var object=document.getElementById("SimV");
@@ -223,6 +223,8 @@ function formatNumberInput(input) {
        </script>
 
         <h1>ネコドラ上限値計算シミュレーター</h1>
+        <h5>赤色表示は使用するステータス。青色は求めるステータス。</h5>
+
         <form>
             <p>計算対象：<button type="button" onclick="TypeToggle()"><span id="TypeV">総戦力</span></button></p>
             <p>調査対象：<button type="button" onclick="SimToggle()"><span id="SimV">ドラ上限</span></button></p>
