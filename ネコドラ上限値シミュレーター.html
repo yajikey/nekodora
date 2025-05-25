@@ -20,7 +20,37 @@
         input{
             width: 100px;
         }
+ .tab-container {
+    display: flex;
+    margin-bottom: 10px;
+  }
 
+  .tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: #eee;
+    border: 1px solid #ccc;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+    margin-right: 5px;
+    transition: background-color 0.3s;
+  }
+
+  .tab.active {
+    background-color: #fff;
+    font-weight: bold;
+  }
+
+  .tab-content {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 0 8px 8px 8px;
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
     </style>
     <body>
         
@@ -132,16 +162,16 @@ function loadInputs() {
 };
         
         // ボタンごとの値（例：任意のステータス加算値など）
-const AddbuttonValues = [1.15, 1.10, 1.4, 1.15]; 
+const AddbuttonValues = [1.15, 1.10, 1.4, 1.15,1.10,1.20]; 
 
 // 各ボタンのON/OFF状態を記録（false = OFF、true = ON）
-let activeAddStates = [false, false, false, false];
+let activeAddStates = [false, false, false, false,false,false];
 
 // ボタンごとの値（例：任意のステータス加算値など）
-const RedubuttonValues = [1.10, 1.10]; 
+const RedubuttonValues = [1.11, 1.11,1.67]; 
 
 // 各ボタンのON/OFF状態を記録（false = OFF、true = ON）
-let activeReduStates = [false, false];
+let activeReduStates = [false, false,false];
 
 // ボタン押下でON/OFFをトグル
 function AddToggle(index) {
@@ -205,10 +235,19 @@ function SumRedu() {
 
         <h1>ネコドラ上限値計算シミュレーター</h1>
         <h5>赤色表示は使用するステータス。青色は求めるステータス。</h5>
+        <h5>*ドラブレの上限値は召喚者のステータスに依存します。</h5>
         <form>
             <p>計算対象：<button type="button" onclick="TypeToggle()"><span id="TypeV">総戦力</span></button></p>
             <p>調査対象：<button type="button" onclick="SimToggle()"><span id="SimV">ドラ上限</span></button></p>
-             <table>
+          
+            <div class="tab-container">
+  <div class="tab active" onclick="showTab('tableA')">直接入力</div>
+  <div class="tab" onclick="showTab('tableB')">CSV入力</div>
+</div>
+   
+            <!-- テーブルA：手動入力 -->
+            <div id="tableA" class="tab-content active">
+            <table>
                 <tr>
                     <th>ステータス</th>
                     <th>値</th>
@@ -260,7 +299,79 @@ function SumRedu() {
                     <td><span id="ans">0.00%</span></td>
                 </tr>
             </table>
+            </div>
+
+            <!-- テーブルB：CSV読み込み結果（初期は非表示） -->
+            <div id="tableB" class="tab-content" >
+
+        <table id="csvTable">
+        <thead><tr id="csvHeader"></tr></thead>
+        <tbody id="csvBody"></tbody>
+        </table>
+    </div>
         </form>
+
+
+
+<script>
+
+
+  function showTab(tabId) {
+    // 全タブを非アクティブに
+    const g = document.getElementById("buttonGroup");
+    const tabs = document.querySelectorAll('.tab');
+    tabs.forEach(tab => tab.classList.remove('active'));
+ 
+
+    // 全コンテンツを非表示
+    const contents = document.querySelectorAll('.tab-content');
+    contents.forEach(content => content.classList.remove('active'));
+
+    // 対象タブとコンテンツをアクティブに
+    document.querySelector(`.tab[onclick*="${tabId}"]`).classList.add('active');
+    document.getElementById(tabId).classList.add('active');
+    if(tabId=="tableB")g.style.display="none";
+    else g.style.display="block";
+  }
+
+//ファイルの読み込み
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('DD.csv')
+  .then(response => response.text())
+  .then(data => parseCSV(data));
+
+});
+
+//ファイルをテーブルに変換
+function parseCSV(data) {
+    const lines = data.split('\n');
+    const tableHeader = document.getElementById('csvHeader');
+    const tableBody = document.getElementById('csvBody');
+
+    // ヘッダー行を設定
+    const headers = lines[0].split(',');
+    headers.forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header;
+        tableHeader.appendChild(th);
+    });
+
+    // データ行を設定
+    for (let i = 1; i < lines.length; i++) {
+        const row = document.createElement('tr');
+        const cells = lines[i].split(',');
+
+        cells.forEach(cell => {
+            const td = document.createElement('td');
+            td.textContent = cell;
+            row.appendChild(td);
+        });
+
+        tableBody.appendChild(row);
+    }
+}
+
+</script>
 
         <script>
             // 初期計算を実行
@@ -268,17 +379,27 @@ function SumRedu() {
           // loadInputs();
         </script>
     
-        <p>*変動倍率(対象じゃない場合は1倍)</p>
-        <h6>セーブで総戦力と能力のセーブができる。ロードでセーブした数値にする。</h6>
+   
         
        
 <!-- ボタン群 -->
 <div id="buttonGroup">
-    絢爛豪華な重箱　　：<button id="btn1" onclick="AddToggle(1)">なし</button><br>
-    ゴキゲンルーラー　：<button id="btn2" onclick="AddToggle(2)">なし</button><br>
-    ガンダ・ザック　　：<button id="btn3" onclick="AddToggle(3)">なし</button><br>
-    終焉の予言　　　　：<button id="btn4" onclick="AddToggle(4)">なし</button><br>
-    天下御免　　　　　：<button id="rbtn1" onclick="ReduToggle(1)">なし</button>
+     <p>*変動倍率(対象じゃない場合は1倍)</p>
+    <h6>セーブで総戦力と能力のセーブができる。ロードでセーブした数値にする。</h6>
+
+    味方側(上昇補正) <br>
+    絢爛豪華な重箱　　：<button id="btn1" onclick="AddToggle(1)">なし</button>　15%<br>
+    ゴキゲンルーラー　：<button id="btn2" onclick="AddToggle(2)">なし</button>　10%<br>
+    ザック・ガンヴァ　：<button id="btn3" onclick="AddToggle(3)">なし</button>　40%<br>
+    終焉の予言　　　　：<button id="btn4" onclick="AddToggle(4)">なし</button>　15%<br>
+    天下御免　　　　　：<button id="btn5" onclick="AddToggle(5)">なし</button>　10%<br>
+    アサシネーション　：<button id="btn6" onclick="AddToggle(6)">なし</button>　20%<br>
+
+    <br><br>相手側(下降補正)<br>
+    天下御免　　　　　：<button id="rbtn1" onclick="ReduToggle(1)">なし</button>　10%<br>
+    カフィカ　　　　　：<button id="rbtn2" onclick="ReduToggle(2)">なし</button>　10%<br>
+    バダイ　　　　　　：<button id="rbtn3" onclick="ReduToggle(3)">なし</button>　40%<br>
+
   </div>
   
 
