@@ -96,7 +96,7 @@ function loadInputs() {
         ? (PoSt * (DrRate / 100) * AddRate * ReduRate * rate).toFixed(0)
         : (AllSt * (DrRate / 100) * AddRate * ReduRate * rate).toFixed(0);
 
-    // ✅ カンマ区切りを適用（この行が重要！）
+ 
     ans = Number(ans).toLocaleString();
 
     Now = TypePoint ? "の対象能力の上限値上昇量は" : "の全能力の上限値上昇量は";
@@ -241,8 +241,8 @@ function SumRedu() {
             <p>調査対象：<button type="button" onclick="SimToggle()"><span id="SimV">ドラ上限</span></button></p>
           
             <div class="tab-container">
-  <div class="tab active" onclick="showTab('tableA')">直接入力</div>
-  <div class="tab" onclick="showTab('tableB')">CSV入力</div>
+  <div class="tab active" onclick="showTab('tableA')">シミュレーター</div>
+  <div class="tab" onclick="showTab('tableB')">データベース</div>
 </div>
    
             <!-- テーブルA：手動入力 -->
