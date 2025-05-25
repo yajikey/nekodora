@@ -236,6 +236,7 @@ function SumRedu() {
         <h1>ネコドラ上限値計算シミュレーター</h1>
         <h5>赤色表示は使用するステータス。青色は求めるステータス。</h5>
         <h5>*ドラブレの上限値は召喚者のステータスに依存します。</h5>
+        
         <form>
             <p>計算対象：<button type="button" onclick="TypeToggle()"><span id="TypeV">総戦力</span></button></p>
             <p>調査対象：<button type="button" onclick="SimToggle()"><span id="SimV">ドラ上限</span></button></p>
@@ -386,6 +387,7 @@ function parseCSV(data) {
 <div id="buttonGroup">
      <p>*変動倍率(対象じゃない場合は1倍)</p>
     <h6>セーブで総戦力と能力のセーブができる。ロードでセーブした数値にする。</h6>
+    <h5>倍率（%）の調査は、ドラブレの素の上昇率を。上限の調査は、上昇量をシミュレートします。</h5>
 
     味方側(上昇補正) <br>
     絢爛豪華な重箱　　：<button id="btn1" onclick="AddToggle(1)">なし</button>　15%<br>
