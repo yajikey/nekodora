@@ -405,8 +405,10 @@ output+="\n";
   .then(response => {
     if (response.ok) {
       console.log("Data sent to Discord successfully!");
+      alert("送信が完了しました！");
     } else {
       console.error("Error sending data to Discord:", response.statusText);
+      alert("送信に失敗しました");
     }
   })
   .catch(error => {
@@ -798,8 +800,10 @@ option:disabled {
   .then(response => {
     if (response.ok) {
       console.log("Data sent to Discord successfully!");
+      alert("送信が完了しました");
     } else {
       console.error("Error sending data to Discord:", response.statusText);
+      alert("送信に失敗しました");
     }
   })
   .catch(error => {
