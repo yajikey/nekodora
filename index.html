@@ -370,14 +370,7 @@ function outputSchedule() {
 }
 
 
- // ページ読み込み時に日付の初期値を今日の日付に設定
- document.addEventListener("DOMContentLoaded", () => {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = String(today.getMonth() + 1).padStart(2, '0'); // 月は0始まりなので+1
-      const day = String(today.getDate()).padStart(2, '0');
-      document.getElementById("scheduleDate").value = `${year}-${month}-${day}`;
-    });
+
 
     function resetSchedule() {
   for (let i = 1; i <= 5; i++) {
