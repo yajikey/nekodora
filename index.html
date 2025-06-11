@@ -159,6 +159,7 @@ var ArrayToggle=false;
 let DayArray = new Array(5);
 let Night1Array = new Array(5);
 let Night2Array = new Array(5);
+
 function populateMemberOptions() {
   const savedData = JSON.parse(localStorage.getItem("guildData")) || initialData;
   console.log("起動");
@@ -275,10 +276,10 @@ function setupClickEvents(dropdown, index, type, members, signs, positions, arra
 
    for (let i = 1; i <= 5; i++) {
     
-    setupDropdown(type, i, members, signs, positions, array);
+   // setupDropdown(type, i, members, signs, positions, array);
   }
   
-saveCurrentSelections();
+  saveCurrentSelections();
 
 };
 
@@ -308,8 +309,8 @@ console.log(DayArray[i]);
 
   // localStorageに保存
   localStorage.setItem("currentSelections", JSON.stringify(selections));
-  //populateMemberOptions();
-  //loadCurrentSelections();
+ // populateMemberOptions();
+ // loadCurrentSelections();
 }
 
 // ページ読み込み時に保存された選択肢を復元する関数
@@ -346,6 +347,9 @@ function setupChangeListeners() {
 }
 
 //スケジュールを出力
+let strvalue="";
+
+
 function outputSchedule() {
   const scheduleTable = document.getElementById("scheduleTable");
   let output = "";
@@ -364,9 +368,15 @@ function outputSchedule() {
     output += rowData.join("\t") + "\n";
   }
 
+
+
   // 出力エリアに表示
   const outputDiv = document.getElementById("outputString");
   outputDiv.textContent = output; // 表示用のdivに文字列を設定
+  strvalue=output;
+
+document.getElementById("copyButton").style.display = "block"; 
+console.log("表示");
 }
 
 
@@ -421,7 +431,8 @@ function outputSchedule() {
 
     var Rem=false;
     var Remtoggle="OFF";
-function remove(){
+
+    function remove(){
    Rem=!Rem;
    if(Rem){
     Remtoggle="ON";
@@ -696,6 +707,29 @@ option:disabled {
 
 
 <button id="outputButton" onclick="outputSchedule()">出力</button>
+<div id="copyButton">
+<button onclick="copyToClipboard()">コピー</button>
+</div>
+
+<script>
+function copyToClipboard() {
+  const text = strvalue;
+  navigator.clipboard.writeText(text).then(() => {
+    alert("コピーしました！");
+  }).catch(err => {
+    alert("コピーに失敗しました：" + err);
+  });
+}
+
+if (strvalue !== "") {
+
+} else {
+  document.getElementById("copyButton").style.display = "none"; // 非表示にする
+console.log("非表示");
+}
+console.log(strvalue);
+</script>
+
 <div id="outputString" class="output"></div>
 <br>
 <br> 
