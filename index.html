@@ -369,54 +369,6 @@ function outputSchedule() {
   outputDiv.textContent = output; // 表示用のdivに文字列を設定
 }
 
-//ディスコに送信
-function sendSchedule(){
-  const scheduleTable = document.getElementById("scheduleTable");
-  const selectedDate = document.getElementById("scheduleDate").value; // 選択された日付
-  let output = "";
-  output += `${selectedDate}の前衛メンバー\n\n`;
-  // 1行目（タイトル行）をスキップして、2行目から処理
-  for (let i = 1; i < scheduleTable.rows.length; i++) {
-    const row = scheduleTable.rows[i];
-    let rowData = [];
-    
-    // 各セルの内容を取得
-    for (let j = 0; j < row.cells.length; j++) {
-      rowData.push(row.cells[j].querySelector("select") ? row.cells[j].querySelector("select").value : row.cells[j].textContent.trim());
-    }
-    
-    // 行データをタブ区切りで結合し、改行を追加
-    output += rowData.join("\t") + "\n";
-  }
-output+="\n";
-  // Discord Webhook URL
-  const webhookUrl = "https://discord.com/api/webhooks/1300400838816301148/5kLLvk-PH7tQPUgD-qzXKhQ9cKPJkP6qymwgUE1dl63GC6KioLBkJKeR9prEU_6AH9xT";
-
-  // Webhookにデータを送信
-  fetch(webhookUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      content: output // メッセージ内容
-    })
-  })
-  .then(response => {
-    if (response.ok) {
-      console.log("Data sent to Discord successfully!");
-      alert("送信が完了しました！");
-    } else {
-      console.error("Error sending data to Discord:", response.statusText);
-      alert("送信に失敗しました");
-    }
-  })
-  .catch(error => {
-    console.error("Error:", error);
-  });
-
-  
-}
 
  // ページ読み込み時に日付の初期値を今日の日付に設定
  document.addEventListener("DOMContentLoaded", () => {
@@ -745,15 +697,7 @@ option:disabled {
       </tr>
     </tbody>
   </table>
-  <button onclick="resetSchedule()">メンバーリセット</button>
-  <br><br>
-  <label for="">日時を決定し送信ボタンを押すことでディスコードに送信できます</label>
- <br>
-  <br>
-  <label for="scheduleDate">対戦日時:</label>
-  <input type="date" id="scheduleDate">
-  <button id="sendButton" onclick="sendSchedule()">送信</button>
-  
+
   
   <h2>前衛メンバーをテキストとして出力する</h2>
 
@@ -764,53 +708,8 @@ option:disabled {
 <br> 
 
 <div>
-  <label for="inquiry">お問い合わせ・ご要望内容:</label><br>
-  <input type="text" id="inquiryInput" placeholder="ご質問やご要望を入力してください">
-  <button onclick="handleInquiry()">送信</button>
-</div>
-<br><br><br>
  
-  <script>
-    function handleInquiry() {
-  const input = document.getElementById("inquiryInput").value.trim();
-
-  if (input === "") {
-    alert("お問い合わせ内容を入力してください。");
-    return;
-  }
-
-  sendMessage(input);
-}
-
-   function sendMessage(output){
-  
-// Discord Webhook URL
-  const webhookUrl =  "https://discord.com/api/webhooks/1375844567328227451/iChHYkIkJm2tWuV8N9oJyp0kxrJM23VLPRQJEzaopqdyOzU1jhJF1rd3B-fvBwAZO-ZU";
-
-  // Webhookにデータを送信
-  fetch(webhookUrl, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      content: output // メッセージ内容
-    })
-  })
-  .then(response => {
-    if (response.ok) {
-      console.log("Data sent to Discord successfully!");
-      alert("送信が完了しました");
-    } else {
-      console.error("Error sending data to Discord:", response.statusText);
-      alert("送信に失敗しました");
-    }
-  })
-  .catch(error => {
-    console.error("Error:", error);
-  });
-
-   }
+ 
   </script>
 
 </body>
