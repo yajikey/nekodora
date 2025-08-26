@@ -70,7 +70,7 @@
         positionCell.appendChild(positionSelect);
         row.appendChild(positionCell);
 
-        ["昼", "夜１", "夜２"].forEach((time, index) => {
+        ["昼 ", "夜１", "夜２"].forEach((time, index) => {
           const evalCell = document.createElement("td");
           const evalSelect = document.createElement("select");
           ["〇", "△", "×", "？"].forEach(optionText => {
@@ -344,12 +344,11 @@ function setupChangeListeners() {
     night1Select.addEventListener('change', saveCurrentSelections);
     night2Select.addEventListener('change', saveCurrentSelections);
   }
+  console.log("ここ");
 }
 
 //スケジュールを出力
 let strvalue="";
-
-
 function outputSchedule() {
   const scheduleTable = document.getElementById("scheduleTable");
   let output = "";
@@ -361,7 +360,7 @@ function outputSchedule() {
     
     // 各セルの内容を取得
     for (let j = 0; j < row.cells.length; j++) {
-      rowData.push(row.cells[j].querySelector("select") ? row.cells[j].querySelector("select").value : row.cells[j].textContent.trim());
+      rowData.push(row.cells[j].querySelector("select") ? row.cells[j].querySelector("select").value : row.cells[j].textContent);
     }
     
     // 行データをタブ区切りで結合し、改行を追加
@@ -614,13 +613,28 @@ option:disabled {
 </head>
 <body>
 
-  <h1>ギルドメンバーポジション表</h1>
+<h1>
+  ギルドメンバーポジション表
+  <span class="update-date">（最終更新日: 2026年8月26日）</span>
+</h1>
+<style>
+  h1 {
+    font-size: 2em;
+  }
+  .update-date {
+    font-size: 0.4em;   /* 小さく表示 */
+    color: gray;        /* 薄い色に */
+    margin-left: 10px;  /* 少し隙間を空ける */
+  }
+</style>
+
 
   <label for="memberCount">ギルドメンバーの人数を選択してください（最大18人）:</label>
   <select id="memberCount" onchange="createTable()">
   </select>
   
   <script>
+    //メンバーの人数を認識
     function populateMemberCountOptions() {
       const memberSelect = document.getElementById("memberCount");
       for (let i = 1; i <= 18; i++) {
@@ -639,7 +653,7 @@ option:disabled {
         <th>No</th>
         <th>名前</th>
         <th>前/後</th>
-        <th>昼</th>
+        <th>昼  </th>
         <th>夜１</th>
         <th>夜２</th>
         <th>ドラブレ１</th>
@@ -676,7 +690,7 @@ option:disabled {
     </thead>
     <tbody id="scheduleTableBody">
       <tr>
-        <td>昼　</td>
+        <td>昼&#x3000;</td>
         <td><select id="member1"></select></td>
         <td><select id="member2"></select></td>
         <td><select id="member3"></select></td>
