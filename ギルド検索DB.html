@@ -1,9 +1,28 @@
 <title>ギルド検索DB</title>
-<h1>竜王予選ギルドDB(総合版)</h1>
+<h1>
+  竜王予選ギルドDB(ver2.0)
+  <span class="update-date">（最終更新日: 2026年2月26日）</span>
+</h1>
+
 <br />
+<label>
+  <input type="radio" name="DB" value="Result" />
+  最終のみ
+</label>
+<label>
+  <input type="radio" name="DB" value="full" checked />
+  総合　
+
+  <small>※最終のみ は空欄でも検索可能です('ω')</small>
+</label>
 <style>
   .input_number {
     width: 40px;
+  }
+  .update-date {
+    font-size: 0.4em; /* 小さく表示 */
+    color: gray; /* 薄い色に */
+    margin-left: 10px; /* 少し隙間を空ける */
   }
 </style>
 <li>
@@ -40,35 +59,45 @@
   function search() {
     updateNum();
     const keyword = document.getElementById("searchBox").value;
-    Display(keyword);
+    const selectedDB = document.querySelector(
+      'input[name="DB"]:checked',
+    )?.value;
+    Display(keyword, selectedDB);
   }
-
   function updateNum() {
     startNum = Number(document.getElementById("Start_number").value);
     endNum = Number(document.getElementById("End_number").value);
   }
-  async function Display(keyword) {
+  async function Display(keyword, dbType) {
     const outputDiv = document.getElementById("outputString");
 
-    if (!keyword.trim()) {
-      outputDiv.innerHTML = "キーワードを入力してください";
-      return;
+    if (dbType === "full") {
+      if (!keyword.trim()) {
+        outputDiv.innerHTML = "キーワードを入力してください";
+        return;
+      }
     }
-
     let allResults = [];
 
     for (let month = startNum; month < endNum; month++) {
       let sheetName;
       let url;
 
-      if (month <= 12) {
-        sheetName = encodeURIComponent(`${month}月竜王予選総合結果DB`);
+      if (dbType === "full") {
+        if (month <= 12) {
+          sheetName = encodeURIComponent(`${month}月竜王予選総合結果DB`);
+        } else {
+          sheetName = encodeURIComponent(
+            `${month - 12}月26年度竜王予選総合結果DB`,
+          );
+        }
       } else {
-        sheetName = encodeURIComponent(
-          `${month - 12}月26年度竜王予選総合結果DB`,
-        );
+        if (month <= 12) {
+          sheetName = encodeURIComponent(`${month}月竜王戦最終結果`);
+        } else {
+          sheetName = encodeURIComponent(`${month - 12}月26年度竜王戦最終結果`);
+        }
       }
-
       url = `https://docs.google.com/spreadsheets/d/1ylSO0ACUvTOG-sAHXOJT48vdyCX6_UXS2WLHJryehMs/gviz/tq?tqx=out:json&sheet=${sheetName}`;
 
       try {
@@ -77,7 +106,7 @@
         const json = JSON.parse(text.substring(47).slice(0, -2));
 
         const rows = json.table.rows;
-
+        const sliceIndex = dbType === "full" ? 2 : 1;
         const data = rows.map((r) =>
           r.c
             .map((cell) => {
@@ -85,7 +114,7 @@
               const raw = String(cell.v).trim();
               return formatDate(raw);
             })
-            .slice(2),
+            .slice(sliceIndex),
         );
 
         const result = data.filter((row) =>
@@ -113,19 +142,29 @@
     // ヘッダー追加
     const thead = document.createElement("tr");
 
-    headers.forEach((text) => {
-      const th = document.createElement("th");
-      th.textContent = text;
-      thead.appendChild(th);
-    });
+    if (dbType === "full") {
+      headers.forEach((text) => {
+        const th = document.createElement("th");
+        th.textContent = text;
+        thead.appendChild(th);
+      });
+    }
 
+    //
+    else {
+      headers2.forEach((text) => {
+        const th = document.createElement("th");
+        th.textContent = text;
+        thead.appendChild(th);
+      });
+    }
     table.appendChild(thead);
 
     // データ行
     allResults.forEach((row) => {
       const tr = document.createElement("tr");
-
-      row.slice(0, 9).forEach((cell) => {
+      const rowIndex = dbType === "full" ? 9 : 8;
+      row.slice(0, rowIndex).forEach((cell) => {
         const td = document.createElement("td");
         td.textContent = cell;
         tr.appendChild(td);
@@ -151,14 +190,25 @@
   }
 
   const headers = [
-    " 日付 ",
+    "日付",
     "時間帯",
-    "  ギルド名  ",
+    "ギルド名",
     "勝ち点",
     "BP",
     "桁",
     "順位",
     "勝",
     "敗",
+  ];
+
+  const headers2 = [
+    " ギルド名 ",
+    "ランク",
+    "最終順位",
+    "勝ち点",
+    "総獲得BP",
+    "桁",
+    "勝利数",
+    "敗北数",
   ];
 </script>
