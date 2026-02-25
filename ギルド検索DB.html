@@ -68,6 +68,7 @@
     const selectedDB = document.querySelector(
       'input[name="DB"]:checked',
     )?.value;
+    if (startNum < 5) startNum = 5;
     Display(keyword, selectedDB);
   }
   function updateNum() {
