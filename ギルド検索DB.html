@@ -1,0 +1,164 @@
+<title>ギルド検索DB</title>
+<h1>竜王予選ギルドDB</h1>
+<br />
+<style>
+  .input_number {
+    width: 40px;
+  }
+</style>
+<li>
+  範囲:2025/5~前回の結果まで
+  <br />
+  <label>
+    　<input type="number" class="input_number" id="Start_number" value="5" />
+    月~
+  </label>
+  <label>
+    <input type="number" class="input_number" id="End_number" value="14" />
+    月　
+  </label>
+  <small>※2026年1月=13月、2026年2月=14月として扱います</small>
+</li>
+
+<br />
+<form>
+  <label for="searchBox">ギルド名を入力</label>
+  <input
+    type="text"
+    id="searchBox"
+    name="Word"
+    onkeydown="if (event.key === 'Enter') search();"
+    required
+  />
+
+  <button type="button" onclick="search()">検索</button>
+</form>
+<div id="outputString" aria-live="polite"></div>
+<script>
+  let startNum = 5;
+  let endNum = 15;
+  function search() {
+    updateNum();
+    const keyword = document.getElementById("searchBox").value;
+    Display(keyword);
+  }
+
+  function updateNum() {
+    startNum = Number(document.getElementById("Start_number").value);
+    endNum = Number(document.getElementById("End_number").value);
+  }
+  async function Display(keyword) {
+    const outputDiv = document.getElementById("outputString");
+
+    if (!keyword.trim()) {
+      outputDiv.innerHTML = "キーワードを入力してください";
+      return;
+    }
+
+    let allResults = [];
+
+    for (let month = startNum; month < endNum; month++) {
+      let sheetName;
+      let url;
+
+      if (month <= 12) {
+        sheetName = encodeURIComponent(`${month}月竜王予選総合結果DB`);
+      } else {
+        sheetName = encodeURIComponent(
+          `${month - 12}月26年度竜王予選総合結果DB`,
+        );
+      }
+
+      url = `https://docs.google.com/spreadsheets/d/1ylSO0ACUvTOG-sAHXOJT48vdyCX6_UXS2WLHJryehMs/gviz/tq?tqx=out:json&sheet=${sheetName}`;
+
+      try {
+        const response = await fetch(url);
+        const text = await response.text();
+        const json = JSON.parse(text.substring(47).slice(0, -2));
+
+        const rows = json.table.rows;
+
+        const data = rows.map((r) =>
+          r.c
+            .map((cell) => {
+              if (!cell || cell.v == null) return "";
+              const raw = String(cell.v).trim();
+              return formatDate(raw);
+            })
+            .slice(2),
+        );
+
+        const result = data.filter((row) =>
+          row.some((cell) =>
+            String(cell).toLowerCase().includes(keyword.toLowerCase()),
+          ),
+        );
+
+        allResults = allResults.concat(result);
+      } catch (e) {
+        console.log("取得失敗:", month);
+      }
+    }
+
+    if (allResults.length === 0) {
+      outputDiv.innerHTML = "該当なし";
+      return;
+    }
+
+    outputDiv.innerHTML = "";
+
+    const table = document.createElement("table");
+    table.border = "1";
+
+    // ヘッダー追加
+    const thead = document.createElement("tr");
+
+    headers.forEach((text) => {
+      const th = document.createElement("th");
+      th.textContent = text;
+      thead.appendChild(th);
+    });
+
+    table.appendChild(thead);
+
+    // データ行
+    allResults.forEach((row) => {
+      const tr = document.createElement("tr");
+
+      row.slice(0, 9).forEach((cell) => {
+        const td = document.createElement("td");
+        td.textContent = cell;
+        tr.appendChild(td);
+      });
+
+      table.appendChild(tr);
+    });
+
+    outputDiv.appendChild(table);
+  }
+
+  function formatDate(value) {
+    if (typeof value !== "string") return value;
+
+    const match = value.match(/Date\((\d+),(\d+),(\d+)\)/);
+    if (!match) return value;
+
+    const year = Number(match[1]);
+    const month = Number(match[2]) + 1; // 0始まり
+    const day = Number(match[3]);
+
+    return `${year}/${month}/${day}`;
+  }
+
+  const headers = [
+    " 日付 ",
+    "時間帯",
+    "  ギルド名  ",
+    "勝ち点",
+    "BP",
+    "桁",
+    "順位",
+    "勝",
+    "敗",
+  ];
+</script>
