@@ -113,7 +113,7 @@
         const json = JSON.parse(text.substring(47).slice(0, -2));
 
         const rows = json.table.rows;
-        const sliceIndex = dbType === "full" ? 2 : 1;
+        const sliceIndex = dbType === "full" ? 2 : 0;
         const data = rows.map((r) =>
           r.c
             .map((cell) => {
@@ -170,7 +170,7 @@
     // データ行
     allResults.forEach((row) => {
       const tr = document.createElement("tr");
-      const rowIndex = dbType === "full" ? 9 : 8;
+      const rowIndex = 9;
       row.slice(0, rowIndex).forEach((cell) => {
         const td = document.createElement("td");
         td.textContent = cell;
@@ -209,13 +209,14 @@
   ];
 
   const headers2 = [
+    "月",
     " ギルド名 ",
     "ランク",
-    "最終順位",
+    "順位",
     "勝ち点",
     "総獲得BP",
     "桁",
-    "勝利数",
-    "敗北数",
+    "勝",
+    "敗",
   ];
 </script>
