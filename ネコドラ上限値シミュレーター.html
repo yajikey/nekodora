@@ -8,10 +8,7 @@
         * {
     box-sizing: border-box;
 }
-  table {
-            /* width: 50%; */
-            border-collapse: collapse;
-        }
+
         th, td {
             border: 1px solid #ddd;
             padding: 8px;
@@ -57,7 +54,10 @@
     max-width: 100%;
 }
 .tab-content.active table{
-  width: 100%;
+    width:100%;
+    max-width:100%;
+   border-collapse: collapse;
+     table-layout:fixed;
 }
     .input_number {
     width: 22px;
@@ -683,4 +683,3 @@ footer.appendChild(totalTd);
 
 <br>
 </html>
-
