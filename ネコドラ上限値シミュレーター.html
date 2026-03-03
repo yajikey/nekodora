@@ -43,14 +43,19 @@
 
   .tab-content {
     border: 1px solid #ccc;
-    padding: 10px;
-    border-radius: 0 8px 8px 8px;
+    /* width: 0%; */
+    /* border-radius: 0 8px 8px 8px; */
     display: none;
   }
 
   .tab-content.active {
     display: block;
+    width: 68.5%;
+    /* width: 100%; */
   }
+.tab-content.active table{
+  width: 100%;
+}
     .input_number {
     width: 22px;
     text-align: center;
@@ -240,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
        </script>
 
-        <h1>ネコドラ上限値計算シミュレーター Ver2.0</h1>
+        <h2>ネコドラ上限値計算シミュレーター Ver2.0</h2>
         <p>赤色表示は使用するステータス。青色は求めるステータス。</p>
         <small>*ドラブレの上限値は召喚者のステータスに依存します。</small>
         
@@ -253,14 +258,14 @@ document.addEventListener("DOMContentLoaded", () => {
 <label><input type="radio" name="random" value="multi">複</label>
 <label><input type="radio" name="random" value="full">全</label>
 </p>
-            <div class="tab-container">
-  <div class="tab active" onclick="showTab('tableA')">シミュレーター</div>
-  <div class="tab" onclick="showTab('tableB')">ドラブレ</div>
-   <div class="tab" onclick="showTab('tableC')">上昇補整</div>
+<div class="tab-container">
+    <div class="tab active" onclick="showTab('tableA')">シミュレーター</div>
+    <div class="tab" onclick="showTab('tableB')">ドラブレ</div>
+    <div class="tab" onclick="showTab('tableC')">上昇補整</div>
     <div class="tab" onclick="showTab('tableD')">下降補整</div>
 </div>
    
-            <div id="tableA" class="tab-content active" >
+<div id="tableA" class="tab-content active" >
             <table>
                 <tr>
                     <th>ステータス</th>
