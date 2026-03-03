@@ -6,7 +6,7 @@
     </head>
     <style>
   table {
-            width: 50%;
+            /* width: 50%; */
             border-collapse: collapse;
         }
         th, td {
@@ -18,7 +18,7 @@
             text-align: left;
         }
         input{
-            width: 100px;
+            width: 50%;
         }
  .tab-container {
     display: flex;
@@ -48,11 +48,11 @@
     display: none;
   }
 
-  .tab-content.active {
+.tab-content.active {
     display: block;
-    width: 490px;
-    /* width: 100%; */
-  }
+    width: 100%;
+    max-width: 100%;
+}
 .tab-content.active table{
   width: 100%;
 }
