@@ -24,18 +24,22 @@
 }
  .tab-container {
     display: flex;
-    margin-bottom: 10px;
+    margin-bottom: 2px;
   }
-
+  
+body {
+    margin: 6px;
+}
   .tab {
-    padding: 10px 20px;
+    padding: 10px 13.5px;
     cursor: pointer;
     background-color: #eee;
     border: 1px solid #ccc;
     border-bottom: none;
-    border-radius: 8px 8px 0 0;
-    margin-right: 5px;
+    border-radius: 8px 10px 0 0;
+    margin-right: 0px;
     transition: background-color 0.3s;
+     font-size: 0.9rem;
   }
 
   .tab.active {
@@ -50,24 +54,32 @@
     display: none;
   }
 
+.remarks {
+    font-size: 0.4rem;
+}
+.SkillNames{
+    font-size:0.8rem;
+}
 .tab-content.active {
     display: block;
-    width: 100%;
-    max-width: 100%;
+    width: 390px;
 }
 .tab-content.active table{
-    width:100%;
-    max-width:100%;
+    width:388px;
    border-collapse: collapse;
 }
-    .input_number {
-    width: 22px;
-    text-align: center;
-  }
+
  input[type="radio"] {
     width: 15px;
     height: 15px;
     margin-left: 15px;
+}
+.version{
+    margin:-35px 330px;
+    color: #1f1f1f;
+    opacity: 0.3;
+        transform: rotate(-15deg);
+    position: fixed;
 }
     </style>
     <body>
@@ -168,11 +180,6 @@ function calculateStats() {
     SimToggle(); // ページ読み込み時に「能力」の色を赤にする
 };
        
-function dataLoad(){
-//下の配列を読み込むためのトグル
-
-}
-
 function SumAdd() {
     let addsum = 1;
     let addCount=0;
@@ -203,10 +210,7 @@ function SumRedu() {
     calculateStats();
 }
 
-   
-
 let randomMultiplier = 1;
-
 function randomRate(){
 
     const selected = document.querySelector('input[name="random"]:checked');
@@ -246,12 +250,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 });
+    </script>
 
-       </script>
-
-        <h1>ネコドラ上限値計算シミュレーター Ver2.0</h1>
-        <p>赤色表示は使用するステータス。青色は求めるステータス。</p>
-        <small>*ドラブレの上限値は召喚者のステータスに依存します。</small>
+        <h2>ネコドラ上限値計算シミュレーター </h2>
+        <h3 class="version">Ver2.0</h3>
+        <sub>赤色：使用するステータス / 青色：求めるステータス</sub><br>
+        <p style="font-size:0.6rem;">
+  *ドラブレの上限値は召喚者のステータスに依存します。
+</p>
         
         <form>
             <p>計算対象：<button type="button" onclick="TypeToggle()"><span id="TypeV">総戦力</span></button></p>
@@ -323,7 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 </tr>
                 <tr>
                     <td><span id="reName"></span></td>
-                    <td><span id="Now"></span></td>
+                    <td><small id="Now"></small></td>
                     <td><span id="ans">0.00%</span></td>
                 </tr>
             </table>
@@ -405,9 +411,12 @@ if(headerId==='Down_Header'){
 
     // ヘッダー
     const headers = lines[0].split(',');
-    headers.forEach(header => {
+    headers.forEach((header,index) => {
         const th = document.createElement('th');
-        th.textContent = header;
+         th.innerHTML = `<small>${header}</small>`;
+         if(index===1){
+            th.classList.add("SkillNames");
+         } 
         tableHeader.appendChild(th);
     });
 
@@ -416,11 +425,18 @@ if(headerId==='Down_Header'){
         const row = document.createElement('tr');
         const cells = lines[i].split(',');
 
-        cells.forEach(cell => {
+        cells.forEach((cell,index) => {
             const td = document.createElement('td');
-            td.textContent = cell;
+        td.innerHTML = `<small>${cell}</small>`; 
+        if(index===0){
+            td.classList.add("SkillNames");
+        }
+        if(index=== 4){
+            td.classList.add("remarks");
+        }
             row.appendChild(td);
         });
+        
 
         tableBody.appendChild(row);
     }
@@ -439,10 +455,11 @@ function parseUpCSV(data) {
     const lines = data.trim().split('\n');
 
     // ヘッダーを再構成
-    const newHeaders = ["スキル名", "個・全", "重複", "効果", "発動"];
+    const newHeaders = ["スキル名", "適用", "重複", "効果", "発動"];
     newHeaders.forEach(text => {
         const th = document.createElement("th");
-        th.textContent = text;
+        
+         th.innerHTML = `<small>${text}</small>`; 
         header.appendChild(th);
     });
 
@@ -473,12 +490,14 @@ function parseUpCSV(data) {
 
         // スキル名
         let td1 = document.createElement("td");
-        td1.textContent = skillName;
+        //td1.textContent = skillName;
+         td1.innerHTML = `<small>${skillName}</small>`; 
+          //td1.classList.add("remarks");
         row.appendChild(td1);
 
         // 個・全
         let td2 = document.createElement("td");
-        td2.textContent = type;
+        td2.innerHTML = `<small>${type}</small>`; 
         row.appendChild(td2);
 
         // 発動数（ここが分岐）
@@ -490,7 +509,7 @@ function parseUpCSV(data) {
             input.min = 1;
             input.max = 5;
             input.value = 1;
-            input.style.width = "50px";
+            input.style.width = "35px";
 
             input.oninput = function () {
                 AddPowValues[i-1] = Number(this.value);
@@ -500,7 +519,8 @@ function parseUpCSV(data) {
             td3.appendChild(input);
 
         } else {
-            td3.textContent = defaultPow;
+
+            td3.innerHTML = `<small>${defaultPow}</small>`; 
         }
 
         row.appendChild(td3);
@@ -543,7 +563,7 @@ footer.appendChild(CountTd);
 // 合計倍率表示セル
 const totalTd = document.createElement("td");
 totalTd.id = "Up_Total";
-totalTd.textContent = 1.00.toFixed(2)+'倍';
+totalTd.textContent=1.00.toFixed(2)+'倍'; 
 footer.appendChild(totalTd);
 
  const td2 = document.createElement("td");
@@ -567,7 +587,7 @@ function parseDownCSV(data) {
     const newHeaders = ["スキル名", "重複", "効果", "発動"];
     newHeaders.forEach(text => {
         const th = document.createElement("th");
-        th.textContent = text;
+        th.innerHTML = `<small>${text}</small>`; 
         header.appendChild(th);
     });
 
@@ -609,7 +629,7 @@ function parseDownCSV(data) {
             input.min = 1;
             input.max = 5;
             input.value = 1;
-            input.style.width = "50px";
+            input.style.width = "35px";
 
             input.oninput = function () {
                 ReduPowValues[i-1] = Number(this.value);
