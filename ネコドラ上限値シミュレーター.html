@@ -51,11 +51,20 @@
   .tab-content.active {
     display: block;
   }
+    .input_number {
+    width: 22px;
+    text-align: center;
+  }
+ input[type="radio"] {
+    width: 15px;
+    height: 15px;
+    margin-left: 15px;
+}
     </style>
     <body>
         
-        <script>
-            function saveInputs() {
+    <script>
+function saveInputs() {
     localStorage.setItem('AllSt', document.getElementById('AllSt').value);
     localStorage.setItem('PoSt', document.getElementById('PoSt').value);
 }
@@ -63,27 +72,21 @@
 function loadInputs() {
     const savedAllSt = localStorage.getItem('AllSt');
     const savedPoSt = localStorage.getItem('PoSt');
-    
     if (savedAllSt !== null) document.getElementById('AllSt').value = savedAllSt;
     if (savedPoSt !== null) document.getElementById('PoSt').value = savedPoSt;
 }
-
-
-            function calculateStats() {
+function calculateStats() {
             // 基本値の取得、空欄なら1に設定
             let AllSt = parseFloat(document.getElementById('AllSt').value) || 1;
             let PoSt = parseFloat(document.getElementById('PoSt').value) || 1;
-            
             let DrSt = parseFloat(document.getElementById('DrSt').value) || 0;
             let DrRate=parseFloat(document.getElementById('DrRate').value) || 0;
-
+            
             let Name=document.getElementById('name').value;
             let Now="";
             let ReduRate = parseFloat(document.getElementById('Redu').innerText) || 1;
             let AddRate = parseFloat(document.getElementById('Add').innerText) || 1;
-
             let rate = parseFloat(document.getElementById('Rate').value) || 0;
-
             let ans =0;
             // 倍率を計算               
             if(simulateRate){
@@ -93,15 +96,12 @@ function loadInputs() {
 } else {
     // 上限値（数値表示）
     ans = TypePoint
-        ? (PoSt * (DrRate / 100) * AddRate * ReduRate * rate).toFixed(0)
-        : (AllSt * (DrRate / 100) * AddRate * ReduRate * rate).toFixed(0);
+        ? (PoSt * ((DrRate+randomMultiplier) / 100) * AddRate * ReduRate * rate).toFixed(0)
+        : (AllSt * ((DrRate+randomMultiplier) / 100) * AddRate * ReduRate * rate).toFixed(0);
 
- 
     ans = Number(ans).toLocaleString();
-
     Now = TypePoint ? "の対象能力の上限値上昇量は" : "の全能力の上限値上昇量は";
 }
-
             ans=(ans).toLocaleString();
                     // 結果の表示（整数値として表示）
                     console.log(ans);
@@ -109,7 +109,7 @@ function loadInputs() {
             document.getElementById('Now').innerText = Now;
             document.getElementById('ans').innerText = ans;
   
-        }
+}
 
         var TypePoint=true;
         var typeV="";
@@ -131,7 +131,6 @@ function loadInputs() {
             var object=document.getElementById("TypeV");
             object.innerText=typeV;
             calculateStats();
-           // console.log(TypePoint);
         }
 
         var simulateRate=true;
@@ -140,7 +139,6 @@ function loadInputs() {
             const text3 = document.getElementById("text3");
             const text4 = document.getElementById("text4");
             simulateRate=!simulateRate;
-
              if(simulateRate){
                 simV="ドラ倍率";
                 text3.style.color = "red"; // 能力のとき赤
@@ -154,100 +152,115 @@ function loadInputs() {
             var object=document.getElementById("SimV");
             object.innerText=simV;
             calculateStats();
-            //console.log(simulateRate);
         }
         window.onload = function() {
     TypeToggle();
+    randomRate();
     SimToggle(); // ページ読み込み時に「能力」の色を赤にする
 };
-        
-        // ボタンごとの値（例：任意のステータス加算値など）
-const AddbuttonValues = [1.15, 1.10, 1.4, 1.15,1.10,1.20,1.16,1.2]; 
+       
+function dataLoad(){
+//下の配列を読み込むためのトグル
 
-// 各ボタンのON/OFF状態を記録（false = OFF、true = ON）
-let activeAddStates = [false, false, false, false,false,false,false];
-
-// ボタンごとの値（例：任意のステータス加算値など）
-const RedubuttonValues = [1.11, 1.11,1.67]; 
-
-// 各ボタンのON/OFF状態を記録（false = OFF、true = ON）
-let activeReduStates = [false, false,false];
-
-// ボタン押下でON/OFFをトグル
-function AddToggle(index) {
-    // トグル処理
-    activeAddStates[index - 1] = !activeAddStates[index - 1];
-
-    // ボタンの表示更新
-    const button = document.getElementById("btn" + index);
-    if (activeAddStates[index - 1]) {
-        button.textContent = "有効";
-    } else {
-        button.textContent = "なし";
-    }
-
-    // 合計の更新
-    SumAdd();
 }
 
-// ボタン押下でON/OFFをトグル
-function ReduToggle(index) {
-    // トグル処理
-    activeReduStates[index - 1] = !activeReduStates[index - 1];
-
-    // ボタンの表示更新
-    const button = document.getElementById("rbtn" + index);
-    if (activeReduStates[index - 1]) {
-        button.textContent = "有効";
-    } else {
-        button.textContent = "なし";
-    }
-
-    // 合計の更新
-    SumRedu();
-}
-
-// 合計値の計算
 function SumAdd() {
     let addsum = 1;
+    let addCount=0;
     for (let i = 0; i < activeAddStates.length; i++) {
         if (activeAddStates[i]) {
-            addsum =addsum* AddbuttonValues[i];
+            addsum *= Math.pow(AddbuttonValues[i],AddPowValues[i]);
+            addCount+=AddPowValues[i];
         }
     }
     document.getElementById("Add").innerText = addsum.toFixed(2);
+    document.getElementById("Up_Total").innerText=addsum.toFixed(2)+'倍';
+    document.getElementById("Up_CT_Total").innerText=addCount;
     calculateStats();
 }
 
 function SumRedu() {
     let redusum = 1;
+    let reduCount=0;
     for (let i = 0; i < activeReduStates.length; i++) {
         if (activeReduStates[i]) {
-            redusum =redusum/ RedubuttonValues[i];
+            redusum =redusum/ Math.pow(RedubuttonValues[i],ReduPowValues[i]);
+            reduCount+=ReduPowValues[i];
         }
     }
     document.getElementById("Redu").innerText = redusum.toFixed(2);
+    document.getElementById("Down_Total").innerText=redusum.toFixed(2)+'倍';
+    document.getElementById("Down_CT_Total").innerText=reduCount;
     calculateStats();
 }
 
+   
+
+let randomMultiplier = 1;
+
+function randomRate(){
+
+    const selected = document.querySelector('input[name="random"]:checked');
+    const randomType = selected ? selected.value : "none";
+
+    switch (randomType) {
+        case "single":
+           randomMultiplier =  (Math.floor(Math.random()*11)-5);
+            break;
+
+        case "multi":
+            randomMultiplier =  (Math.floor(Math.random()*51)-25)/10; 
+            break;
+
+        case "full":
+            randomMultiplier =   ((Math.floor(Math.random()*31)-15)/10);
+            break;
+
+        default:
+            randomMultiplier = 0;
+    }
+
+    console.log("乱数倍率:", randomMultiplier);
+   
+    document.getElementById("Random").innerText =
+        randomMultiplier;
+
+        calculateStats();
+}
+document.addEventListener("DOMContentLoaded", () => {
+
+    document.querySelectorAll('input[name="random"]').forEach(radio => {
+        radio.addEventListener("change", () => {
+            console.log("変更された");
+            randomRate();
+        });
+    });
+
+});
 
        </script>
 
-        <h1>ネコドラ上限値計算シミュレーター</h1>
-        <h5>赤色表示は使用するステータス。青色は求めるステータス。</h5>
-        <h5>*ドラブレの上限値は召喚者のステータスに依存します。</h5>
+        <h1>ネコドラ上限値計算シミュレーター Ver2.0</h1>
+        <p>赤色表示は使用するステータス。青色は求めるステータス。</p>
+        <small>*ドラブレの上限値は召喚者のステータスに依存します。</small>
         
         <form>
             <p>計算対象：<button type="button" onclick="TypeToggle()"><span id="TypeV">総戦力</span></button></p>
             <p>調査対象：<button type="button" onclick="SimToggle()"><span id="SimV">ドラ上限</span></button></p>
-          
+<p>乱数:
+<label><input type="radio" name="random" value="none" checked>なし</label>
+<label><input type="radio" name="random" value="single">単</label>
+<label><input type="radio" name="random" value="multi">複</label>
+<label><input type="radio" name="random" value="full">全</label>
+</p>
             <div class="tab-container">
   <div class="tab active" onclick="showTab('tableA')">シミュレーター</div>
-  <div class="tab" onclick="showTab('tableB')">データベース</div>
+  <div class="tab" onclick="showTab('tableB')">ドラブレ</div>
+   <div class="tab" onclick="showTab('tableC')">上昇補整</div>
+    <div class="tab" onclick="showTab('tableD')">下降補整</div>
 </div>
    
-            <!-- テーブルA：手動入力 -->
-            <div id="tableA" class="tab-content active">
+            <div id="tableA" class="tab-content active" >
             <table>
                 <tr>
                     <th>ステータス</th>
@@ -281,13 +294,18 @@ function SumRedu() {
                 </tr>
                 <tr>
                     <td>上昇補正</td>
-                    <td><span id="Add">1</span>倍</td>
+                    <td><span id="Add">1.00</span>倍</td>
                     <td>-</td>
                 </tr>
                 <tr>
                     <td>下降補正</td>
-                    <td><span id="Redu" >1</span>倍</td>
+                    <td><span id="Redu" >1.00</span>倍</td>
                     <td>-</td>
+                </tr>
+                   <tr>
+                    <td>乱数補正</td>
+                    <td><span id="Random" >1.00</span>%</td>
+                    <td><button type="button" onclick="randomRate()">乱数</button></td>
                 </tr>
                 <tr>
                     <td>変動倍率</td>
@@ -302,27 +320,35 @@ function SumRedu() {
             </table>
             </div>
 
-            <!-- テーブルB：CSV読み込み結果（初期は非表示） -->
             <div id="tableB" class="tab-content" >
+                <table id="csvTable">
+                <thead><tr id="csvHeader"></tr></thead>
+                <tbody id="csvBody"></tbody>
+                </table>
+            </div>
 
-        <table id="csvTable">
-        <thead><tr id="csvHeader"></tr></thead>
-        <tbody id="csvBody"></tbody>
-        </table>
-    </div>
+             <div id="tableC" class="tab-content" >
+                <table id="Up_Table">
+                <thead><tr id="Up_Header"></tr></thead>
+                <tbody id="Up_Body"></tbody>
+                <tfoot id="Up_Footer"></tfoot>
+                </table>
+            </div>
+
+             <div id="tableD" class="tab-content" >
+                <table id="Down_Table">
+                <thead><tr id="Down_Header"></tr></thead>
+                <tbody id="Down_Body"></tbody>
+                <tfoot id="Down_Footer"></tfoot>
+                </table>    
+             </div>
         </form>
-
-
-
 <script>
-
-
-  function showTab(tabId) {
+function showTab(tabId) {
     // 全タブを非アクティブに
     const g = document.getElementById("buttonGroup");
     const tabs = document.querySelectorAll('.tab');
     tabs.forEach(tab => tab.classList.remove('active'));
- 
 
     // 全コンテンツを非表示
     const contents = document.querySelectorAll('.tab-content');
@@ -333,23 +359,42 @@ function SumRedu() {
     document.getElementById(tabId).classList.add('active');
     if(tabId=="tableB")g.style.display="none";
     else g.style.display="block";
-  }
+}
 
 //ファイルの読み込み
 document.addEventListener('DOMContentLoaded', function() {
-    fetch('DD.csv')
-  .then(response => response.text())
-  .then(data => parseCSV(data));
-
+  loadSheet(592916302, 'csvHeader');
+  loadSheet(0, 'Up_Header');
+  loadSheet(601702192,'Down_Header')
 });
 
+function loadSheet(gid, headerId) {
+  fetch(`https://docs.google.com/spreadsheets/d/1IFkt6r_x1yZbYMDi1DvPFu89io4TmpXTxvOmGwPvRcA/export?format=csv&gid=${gid}`)
+    .then(response => response.text())
+    .then(data => parseCSV(data, headerId));
+}
+
 //ファイルをテーブルに変換
-function parseCSV(data) {
-    const lines = data.split('\n');
+function parseCSV(data, headerId) {
+if(headerId==='Up_Header'){
+    parseUpCSV(data);
+    return;
+}
+if(headerId==='Down_Header'){
+    parseDownCSV(data);
+    return;
+}
+
     const tableHeader = document.getElementById('csvHeader');
     const tableBody = document.getElementById('csvBody');
 
-    // ヘッダー行を設定
+    // 前回分を削除
+    tableHeader.innerHTML = "";
+    tableBody.innerHTML = "";
+
+    const lines = data.trim().split('\n');
+
+    // ヘッダー
     const headers = lines[0].split(',');
     headers.forEach(header => {
         const th = document.createElement('th');
@@ -357,7 +402,7 @@ function parseCSV(data) {
         tableHeader.appendChild(th);
     });
 
-    // データ行を設定
+    // データ
     for (let i = 1; i < lines.length; i++) {
         const row = document.createElement('tr');
         const cells = lines[i].split(',');
@@ -372,41 +417,259 @@ function parseCSV(data) {
     }
 }
 
+function parseUpCSV(data) {
+
+    const header = document.getElementById("Up_Header");
+    const body = document.getElementById("Up_Body");
+    const footer=document.getElementById("Up_Footer");
+    
+    header.innerHTML = "";
+    body.innerHTML = "";
+    footer.innerHTML="";
+
+    const lines = data.trim().split('\n');
+
+    // ヘッダーを再構成
+    const newHeaders = ["スキル名", "個・全", "重複", "効果", "発動"];
+    newHeaders.forEach(text => {
+        const th = document.createElement("th");
+        th.textContent = text;
+        header.appendChild(th);
+    });
+
+    AddbuttonValues = [];
+    AddPowValues = [];
+    activeAddStates = [];
+
+    for (let i = 1; i < lines.length; i++) {
+
+        const row = document.createElement("tr");
+        const cells = lines[i].split(",");
+    
+        const skillName = cells[0];
+        const type = cells[1];
+        const stack = cells[2];     // 有 / 無
+        let effectText = cells[3]; // 10%
+        const defaultPow = cells[4] || cells[2];
+
+        // %を除去して倍率化
+        let effectValue = parseFloat(effectText.replace("%","")) / 100 + 1;
+       if (isNaN(effectValue)) {
+    effectValue = 1;
+}
+       
+        AddbuttonValues.push(effectValue);
+        AddPowValues.push(1);
+        activeAddStates.push(false);
+
+        // スキル名
+        let td1 = document.createElement("td");
+        td1.textContent = skillName;
+        row.appendChild(td1);
+
+        // 個・全
+        let td2 = document.createElement("td");
+        td2.textContent = type;
+        row.appendChild(td2);
+
+        // 発動数（ここが分岐）
+        let td3 = document.createElement("td");
+
+        if (stack === "有") {
+            const input = document.createElement("input");
+            input.type = "number";
+            input.min = 1;
+            input.max = 5;
+            input.value = 1;
+            input.style.width = "50px";
+
+            input.oninput = function () {
+                AddPowValues[i-1] = Number(this.value);
+                SumAdd();
+            };
+
+            td3.appendChild(input);
+
+        } else {
+            td3.textContent = defaultPow;
+        }
+
+        row.appendChild(td3);
+
+        // 効果
+        let td4 = document.createElement("td");
+        td4.textContent = effectText;
+        row.appendChild(td4);
+
+        // ON/OFFボタン
+        let td5 = document.createElement("td");
+        const btn = document.createElement("button");
+        btn.textContent = "なし";
+        btn.type = "button";
+
+        btn.onclick = function () {
+            activeAddStates[i-1] = !activeAddStates[i-1];
+            btn.textContent = activeAddStates[i-1] ? "有効" : "なし";
+            SumAdd();
+        };
+
+        td5.appendChild(btn);
+        row.appendChild(td5);
+        body.appendChild(row);
+    }
+
+// 合計倍率ラベル
+const labelTd = document.createElement("td");
+labelTd.textContent = "発動 (数/倍率)";
+footer.appendChild(labelTd);
+
+    const td = document.createElement("td");
+    footer.appendChild(td);
+
+const CountTd = document.createElement("td");
+CountTd.id = "Up_CT_Total";
+CountTd.textContent = 0;
+footer.appendChild(CountTd);
+
+// 合計倍率表示セル
+const totalTd = document.createElement("td");
+totalTd.id = "Up_Total";
+totalTd.textContent = 1.00.toFixed(2)+'倍';
+footer.appendChild(totalTd);
+
+ const td2 = document.createElement("td");
+    footer.appendChild(td2);
+}       
+
+
+function parseDownCSV(data) {
+
+    const header = document.getElementById("Down_Header");
+    const body = document.getElementById("Down_Body");
+    const footer=document.getElementById("Down_Footer");
+
+    header.innerHTML = "";
+    body.innerHTML = "";
+    footer.innerHTML="";
+
+    const lines = data.trim().split('\n');
+
+    // ヘッダーを再構成
+    const newHeaders = ["スキル名", "重複", "効果", "発動"];
+    newHeaders.forEach(text => {
+        const th = document.createElement("th");
+        th.textContent = text;
+        header.appendChild(th);
+    });
+
+    RedubuttonValues = [];
+    ReduPowValues = [];
+    activeReduStates = [];
+
+    for (let i = 1; i < lines.length; i++) {
+
+        const row = document.createElement("tr");
+        const cells = lines[i].split(",");
+      
+        const skillName = cells[0];
+        const stack = cells[1];     // 有 / 無
+        let effectText = cells[2]; // 10%
+        const defaultPow = cells[3] || cells[1];
+
+        // %を除去して倍率化
+        let effectValue = parseFloat(effectText.replace("%","")) / 100 + 1;
+       if (isNaN(effectValue)) {
+    effectValue = 1;
+}
+         
+        RedubuttonValues.push(effectValue);
+        ReduPowValues.push(1);
+        activeReduStates.push(false);
+
+        // スキル名
+        let td1 = document.createElement("td");
+        td1.textContent = skillName;
+        row.appendChild(td1);
+
+        // 発動数（ここが分岐）
+        let td3 = document.createElement("td");
+
+        if (stack === "有") {
+            const input = document.createElement("input");
+            input.type = "number";
+            input.min = 1;
+            input.max = 5;
+            input.value = 1;
+            input.style.width = "50px";
+
+            input.oninput = function () {
+                ReduPowValues[i-1] = Number(this.value);
+                SumRedu();
+            };
+
+            td3.appendChild(input);
+
+        } else {
+            td3.textContent = defaultPow;
+        }
+
+        row.appendChild(td3);
+
+        // 効果
+        let td4 = document.createElement("td");
+        td4.textContent = effectText;
+        row.appendChild(td4);
+
+        // ON/OFFボタン
+        let td5 = document.createElement("td");
+        const btn = document.createElement("button");
+        btn.textContent = "なし";
+        btn.type = "button";
+
+        btn.onclick = function () {
+            activeReduStates[i-1] = !activeReduStates[i-1];
+            btn.textContent = activeReduStates[i-1] ? "有効" : "なし";
+            SumRedu();
+        };
+
+        td5.appendChild(btn);
+        row.appendChild(td5);
+        body.appendChild(row);
+    }
+
+    // 合計倍率ラベル
+const labelTd = document.createElement("td");
+labelTd.textContent = "発動 (数/倍率)";
+footer.appendChild(labelTd);
+
+const CountTd = document.createElement("td");
+CountTd.id = "Down_CT_Total";
+CountTd.textContent = 0;
+footer.appendChild(CountTd);
+
+// 合計倍率表示セル
+const totalTd = document.createElement("td");
+totalTd.id = "Down_Total";
+totalTd.textContent = 1.00.toFixed(2)+'倍';
+footer.appendChild(totalTd);
+
+ const td2 = document.createElement("td");
+    footer.appendChild(td2);
+
+}       
 </script>
 
-        <script>
-            // 初期計算を実行
-           calculateStats();
-          // loadInputs();
-        </script>
-    
-   
-        
-       
 <!-- ボタン群 -->
 <div id="buttonGroup">
      <p>*変動倍率(対象じゃない場合は1倍)</p>
     <h6>セーブで総戦力と能力のセーブができる。ロードでセーブした数値にする。</h6>
     <h5>倍率（%）の調査は、ドラブレの素の上昇率を。上限の調査は、上昇量をシミュレートします。</h5>
-
-    味方側(上昇補正) <br>
-    絢爛豪華な重箱　　：<button id="btn1" onclick="AddToggle(1)">なし</button>　15%<br>
-    ゴキゲンルーラー　：<button id="btn2" onclick="AddToggle(2)">なし</button>　10%<br>
-    ザック・ガンヴァ　：<button id="btn3" onclick="AddToggle(3)">なし</button>　40%<br>
-    終焉の予言　　　　：<button id="btn4" onclick="AddToggle(4)">なし</button>　15%<br>
-    天下御免　　　　　：<button id="btn5" onclick="AddToggle(5)">なし</button>　10%<br>
-    アサシネーション　：<button id="btn6" onclick="AddToggle(6)">なし</button>　20%<br>
-    開運の論理　　　　：<button id="btn7" onclick="AddToggle(7)">なし</button>　16%<br>
-    スノーワールド　　：<button id="btn8" onclick="AddToggle(8)">なし</button>　20%<br>
-    
-
-    <br><br>相手側(下降補正)<br>
-    天下御免　　　　　：<button id="rbtn1" onclick="ReduToggle(1)">なし</button>　10%<br>
-    カフィカ　　　　　：<button id="rbtn2" onclick="ReduToggle(2)">なし</button>　10%<br>
-    バダイ　　　　　　：<button id="rbtn3" onclick="ReduToggle(3)">なし</button>　40%<br>
-
-  </div>
-  
+<br>
+<hr>
+<small>ドラ倍率に補整＝(全)　個人の上昇量に補整＝(個)
+<br>    重複可能な場合は発動数　入力可
+<br>*未調査の場合＆重複不可の場合　入力不可
+</small>
 
     </body>
 
